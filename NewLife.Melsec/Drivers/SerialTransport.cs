@@ -1,30 +1,30 @@
-﻿using System.IO.Ports;
+using System.IO.Ports;
 using NewLife.Data;
 using NewLife.Log;
 using NewLife.Threading;
 
 namespace NewLife.Net;
 
-/// <summary>串口传输</summary>
+/// <summary>시리얼 포트 전송</summary>
 /// <example>
-/// 标准例程：
+/// 표준 예제:
 /// <code>
 /// var st = new SerialTransport();
-/// st.PortName = "COM65";  // 通讯口
-/// st.FrameSize = 16;      // 数据帧大小
+/// st.PortName = "COM65";  // 통신 포트
+/// st.FrameSize = 16;      // 데이터 프레임 크기
 /// 
 /// st.Received += (s, e) =>
 /// {
-///     Console.WriteLine("收到 {0}", e.ToHex());
+///     Console.WriteLine("수신 {0}", e.ToHex());
 /// };
-/// // 开始异步操作
+/// // 비동기 조작 시작
 /// st.Open();
 /// 
 /// //var buf = "01080000801A".ToHex();
 /// var buf = "0111C02C".ToHex();
 /// for (int i = 0; i &lt; 100; i++)
 /// {
-///     Console.WriteLine("发送 {0}", buf.ToHex());
+///     Console.WriteLine("송신 {0}", buf.ToHex());
 ///     st.Send(buf);
 /// 
 ///     Thread.Sleep(1000);
@@ -33,9 +33,9 @@ namespace NewLife.Net;
 /// </example>
 public class SerialTransport : DisposeBase, ITransport
 {
-    #region 属性
+    #region 속성
     private SerialPort _Serial;
-    /// <summary>串口对象</summary>
+    /// <summary>시리얼 포트 객체</summary>
     public SerialPort Serial
     {
         get { return _Serial; }
@@ -53,26 +53,26 @@ public class SerialTransport : DisposeBase, ITransport
         }
     }
 
-    /// <summary>端口名称。默认COM1</summary>
+    /// <summary>포트 이름. 기본 COM1</summary>
     public String PortName { get; set; } = "COM1";
 
-    /// <summary>波特率。默认115200</summary>
+    /// <summary>보우레이트. 기본 115200</summary>
     public Int32 BaudRate { get; set; } = 115200;
 
-    /// <summary>奇偶校验位。默认None</summary>
+    /// <summary>패리티. 기본 None</summary>
     public Parity Parity { get; set; } = Parity.None;
 
-    /// <summary>数据位。默认8</summary>
+    /// <summary>데이터 비트. 기본 8</summary>
     public Int32 DataBits { get; set; } = 8;
 
-    /// <summary>停止位。默认One</summary>
+    /// <summary>스톱 비트. 기본 One</summary>
     public StopBits StopBits { get; set; } = StopBits.One;
 
-    /// <summary>超时时间。超过该大小未收到数据，说明是另一帧。默认10ms</summary>
+    /// <summary>타임아웃. 이 시간 동안 데이터가 수신되지 않으면 다른 프레임으로 간주. 기본 10ms</summary>
     public Int32 Timeout { get; set; } = 10;
 
     private String _Description;
-    /// <summary>描述信息</summary>
+    /// <summary>설명 정보</summary>
     public String Description
     {
         get
@@ -87,22 +87,22 @@ public class SerialTransport : DisposeBase, ITransport
         }
     }
 
-    ///// <summary>粘包处理接口</summary>
+    ///// <summary>패킷 병합 처리 인터페이스</summary>
     //public IPacket Packet { get; set; }
 
-    /// <summary>字节超时。数据包间隔，默认20ms</summary>
+    /// <summary>바이트 타임아웃. 데이터 패킷 간격, 기본 20ms</summary>
     public Int32 ByteTimeout { get; set; } = 20;
     #endregion
 
-    #region 构造
-    /// <summary>串口传输</summary>
+    #region 생성
+    /// <summary>시리얼 포트 전송</summary>
     public SerialTransport()
     {
-        // 每隔一段时间检查一次串口是否已经关闭，如果串口已经不存在，则关闭该传输口
+        // 일정 주기마다 시리얼 포드가 닫혔는지 확인. 시리얼 포트가 더 이상 없으면 해당 전송 포트도 닫음
         timer = new TimerX(CheckDisconnect, null, 3000, 3000) { Async = true };
     }
 
-    /// <summary>销毁</summary>
+    /// <summary>소멸</summary>
     /// <param name="disposing"></param>
     //protected override void Dispose(Boolean disposing)
     //{
@@ -117,8 +117,8 @@ public class SerialTransport : DisposeBase, ITransport
     //}
     #endregion
 
-    #region 方法
-    /// <summary>确保创建</summary>
+    #region 메서드
+    /// <summary>생성 보장</summary>
     public virtual void EnsureCreate()
     {
         if (Serial == null)
@@ -129,7 +129,7 @@ public class SerialTransport : DisposeBase, ITransport
         }
     }
 
-    /// <summary>打开</summary>
+    /// <summary>오픈</summary>
     public virtual Boolean Open()
     {
         EnsureCreate();
@@ -143,10 +143,10 @@ public class SerialTransport : DisposeBase, ITransport
         return true;
     }
 
-    /// <summary>关闭</summary>
+    /// <summary>닫기</summary>
     public virtual Boolean Close()
     {
-        // 关闭时必须清空，否则更换属性后再次打开也无法改变属性
+        // 닫을 때 반드시 초기화. 그렇지 않으면 속성을 변경 후 다시 열어도 속성이 바뀌지 않음
         var sp = Serial;
         if (sp != null)
         {
@@ -161,9 +161,9 @@ public class SerialTransport : DisposeBase, ITransport
     }
     #endregion
 
-    #region 发送
-    /// <summary>写入数据</summary>
-    /// <param name="pk">数据包</param>
+    #region 전송
+    /// <summary>데이터 쓰기</summary>
+    /// <param name="pk">데이터 패킷</param>
     public virtual Int32 Send(IPacket pk)
     {
         if (!Open()) return -1;
@@ -182,7 +182,7 @@ public class SerialTransport : DisposeBase, ITransport
         return pk.Total;
     }
 
-    /// <summary>异步发送数据并等待响应</summary>
+    /// <summary>데이터 비동기 전송 및 응답 대기</summary>
     /// <param name="pk"></param>
     /// <returns></returns>
     public virtual async Task<IOwnerPacket> SendAsync(IPacket pk)
@@ -199,7 +199,7 @@ public class SerialTransport : DisposeBase, ITransport
         {
             WriteLog("SendAsync:{0}", pk.ToHex());
 
-            // 发送数据
+            // 데이터 전송
             if (pk.TryGetArray(out var seg))
                 Serial.Write(seg.Array, seg.Offset, seg.Count);
             else
@@ -209,7 +209,7 @@ public class SerialTransport : DisposeBase, ITransport
         return await _Source.Task;
     }
 
-    /// <summary>接收数据</summary>
+    /// <summary>데이터 수신</summary>
     /// <returns></returns>
     public virtual IOwnerPacket Receive()
     {
@@ -222,10 +222,10 @@ public class SerialTransport : DisposeBase, ITransport
     }
     #endregion
 
-    #region 异步接收
+    #region 비동기 수신
     void DataReceived(Object sender, SerialDataReceivedEventArgs e)
     {
-        // 发送者必须保持一定间隔，每个报文不能太大，否则会因为粘包拆包而出错
+        // 전송자는 반드시 일정 간격을 유지해야 하며, 각 메시지가 너무 크면 패킷 병합/분리 때문에 오류가 발생할 수 있음
         try
         {
             var sp = sender as SerialPort;
@@ -278,7 +278,7 @@ public class SerialTransport : DisposeBase, ITransport
             OnReceive(pk);
             //else
             //{
-            //    // 拆包，多个包多次调用处理程序
+            //    // 패킷 분해, 여러 패킷을 여러 번 처리 프로그램에 호출
             //    foreach (var msg in Packet.Parse(pk))
             //    {
             //        OnReceive(msg);
@@ -292,11 +292,11 @@ public class SerialTransport : DisposeBase, ITransport
     }
 
     private TaskCompletionSource<IOwnerPacket> _Source;
-    /// <summary>处理收到的数据。默认匹配同步接收委托</summary>
+    /// <summary>수신된 데이터 처리. 기본은 동기 수신 위임과 매칭</summary>
     /// <param name="pk"></param>
     internal virtual void OnReceive(IOwnerPacket pk)
     {
-        //// 同步匹配
+        //// 동기 매칭
         //if (Packet != null && Packet.Match(pk, null)) return;
 
         if (_Source != null)
@@ -306,16 +306,16 @@ public class SerialTransport : DisposeBase, ITransport
             return;
         }
 
-        // 触发事件
+        // 이벤트 발생
         Received?.Invoke(this, new ReceivedEventArgs { Packet = pk });
     }
 
-    /// <summary>数据到达事件</summary>
+    /// <summary>데이터 도착 이벤트</summary>
     public event EventHandler<ReceivedEventArgs> Received;
     #endregion
 
-    #region 自动检测串口断开
-    /// <summary>断开时触发，可能是人为断开，也可能是串口链路断开</summary>
+    #region 시리얼 포트 연결 끊김 자동 감지
+    /// <summary>연결 끊김 시 발생. 사람이 끊은 경우도 있고, 시리얼 포트 링크가 끊긴 경우도 있음</summary>
     public event EventHandler Disconnected;
 
     Boolean isInEvent;
@@ -323,7 +323,7 @@ public class SerialTransport : DisposeBase, ITransport
     {
         if (Disconnected != null)
         {
-            // 判断是否在事件中，避免外部在断开时间中调用Close造成死循环
+            // 이벤트 내부 여부 판단. 외부에서 끊김 이벤트 중에 Close를 호출하여 무한 루프를 일으키지 않도록 함
             if (!isInEvent)
             {
                 isInEvent = true;
@@ -336,17 +336,17 @@ public class SerialTransport : DisposeBase, ITransport
     }
 
     TimerX timer;
-    /// <summary>检查串口是否已经断开</summary>
+    /// <summary>시리얼 포트가 끊겼는지 확인</summary>
     /// <remarks>
-    /// FX串口异步操作有严重的泄漏缺陷，如果外部硬件长时间断开，
-    /// SerialPort.IsOpen检测不到，并且会无限大占用内存。
+    /// FX 시리얼 포트 비동기 조작은 심각한 누수 결함이 있음. 외부 하드웨어가 장시간 끊겨 있으면
+    /// SerialPort.IsOpen이 감지하지 못하고, 메모리를 무한정 점유한다.
     /// </remarks>
     /// <param name="state"></param>
     void CheckDisconnect(Object state)
     {
         if (String.IsNullOrEmpty(PortName) || Serial == null || !Serial.IsOpen) return;
 
-        // 如果端口已经不存在，则断开吧
+        // 포트가 더 이상 없으면 연결을 끊자
         if (!SerialPort.GetPortNames().Contains(PortName))
         {
             WriteLog("串口{0}已经不存在，准备关闭！", PortName);
@@ -357,8 +357,8 @@ public class SerialTransport : DisposeBase, ITransport
     }
     #endregion
 
-    #region 辅助
-    /// <summary>获取带有描述的串口名，没有时返回空数组</summary>
+    #region 헬퍼
+    /// <summary>설명이 있는 시리얼 포트 이름 가져오기. 없으면 빈 배열 반환</summary>
     /// <returns></returns>
     public static String[] GetPortNames()
     {
@@ -370,7 +370,7 @@ public class SerialTransport : DisposeBase, ITransport
         return list.ToArray();
     }
 
-    /// <summary>获取串口列表，名称和描述</summary>
+    /// <summary>시리얼 포트 목록, 이름과 설명 가져오기</summary>
     /// <returns></returns>
     public static Dictionary<String, String> GetNames()
     {
@@ -391,7 +391,7 @@ public class SerialTransport : DisposeBase, ITransport
         //                        var name = key.GetValue(item) + "";
         //                        var des = "";
 
-        //                        // 尝试枚举USB串口
+        //                        // USB 시리얼 포트 열거 시도
         //                        foreach (var vid in usb.GetSubKeyNames())
         //                        {
         //                            var usbvid = usb.OpenSubKey(vid);
@@ -411,7 +411,7 @@ public class SerialTransport : DisposeBase, ITransport
         //                            if (!des.IsNullOrEmpty()) break;
         //                        }
 
-        //                        // 最后选择设备映射的串口名
+        //                        // 마지막으로 장치 매핑의 시리얼 포트 이름 선택
         //                        if (des.IsNullOrEmpty())
         //                        {
         //                            des = item;
@@ -420,7 +420,7 @@ public class SerialTransport : DisposeBase, ITransport
         //                        }
 
         //                        //dic.Add(name, des);
-        //                        // 某台机器上发现，串口有重复
+        //                        // 특정 머신에서 시리얼 포트 중복 발견
         //                        dic[name] = des;
         //                    }
         //                }
@@ -430,8 +430,8 @@ public class SerialTransport : DisposeBase, ITransport
         return dic;
     }
 
-    /// <summary>从串口列表选择串口，支持自动选择关键字</summary>
-    /// <param name="keyWord">串口名称或者描述符的关键字</param>
+    /// <summary>시리얼 포트 목록에서 시리얼 포트 선택, 자동 선택 키워드 지원</summary>
+    /// <param name="keyWord">시리얼 포트 이름 또는 설명자의 키워드</param>
     /// <returns></returns>
     public static SerialTransport Choose(String keyWord = null)
     {
@@ -460,7 +460,7 @@ public class SerialTransport : DisposeBase, ITransport
             //Console.WriteLine(item);
             Console.WriteLine("{0,5}({1})", item.Key, item.Value);
         }
-        // 没有自动选择，则默认最后一个
+        // 자동 선택이 없으면 마지막 항목을 기본으로
         if (name.IsNullOrEmpty())
         {
             var item = ns.Last();
@@ -479,7 +479,7 @@ public class SerialTransport : DisposeBase, ITransport
             var str = Console.ReadLine();
             if (str.IsNullOrEmpty()) break;
 
-            // 只有输入有效串口名称才行
+            // 유효한 시리얼 포트 이름만 입력 가능
             if (ns.ContainsKey(str))
             {
                 name = str;
@@ -504,11 +504,11 @@ public class SerialTransport : DisposeBase, ITransport
     }
     #endregion
 
-    #region 日志
-    /// <summary>日志对象</summary>
+    #region 로그
+    /// <summary>로그 객체</summary>
     public ILog Log { get; set; } = Logger.Null;
 
-    /// <summary>输出日志</summary>
+    /// <summary>로그 출력</summary>
     /// <param name="format"></param>
     /// <param name="args"></param>
     public void WriteLog(String format, params Object[] args)
@@ -516,7 +516,7 @@ public class SerialTransport : DisposeBase, ITransport
         if (Log != null && Log.Enable) Log.Info(format, args);
     }
 
-    /// <summary>已重载</summary>
+    /// <summary>오버라이드</summary>
     /// <returns></returns>
     public override String ToString()
     {

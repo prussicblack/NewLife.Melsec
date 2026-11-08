@@ -6,14 +6,14 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>SLMP 协议兼容性测试</summary>
+/// <summary>SLMP 프로토콜 호환성 테스트</summary>
 public class SLMPTests
 {
     [Fact]
     [DisplayName("SLMP 读字请求与 MC 3E 二进制帧一致")]
     public void ReadWord_Matches_MC3E()
     {
-        // SLMP 3C 帧应与 MC 3E 二进制帧产生完全相同的字节
+        // SLMP 3C 프레임은 MC 3E 바이너리 프레임과 완전히 동일한 바이트를 생성해야 한다
         var slmp = SLMPMessage.BuildReadWord(SLMPDeviceCode.D, 100, 4);
         var mc3e = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
 
@@ -72,7 +72,7 @@ public class SLMPTests
         Assert.Equal((Byte)SLMPDeviceCode.X, (Byte)DeviceCode.X);
         Assert.Equal((Byte)SLMPDeviceCode.Y, (Byte)DeviceCode.Y);
 
-        // 转换验证
+        // 변환 검증
         Assert.Equal(SLMPDeviceCode.D, SLMPDeviceCodeHelper.FromMC3E(DeviceCode.D));
         Assert.Equal(DeviceCode.D, SLMPDeviceCodeHelper.ToMC3E(SLMPDeviceCode.D));
     }

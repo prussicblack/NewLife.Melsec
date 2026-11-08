@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -14,7 +14,7 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MCDriver 驱动层测试（使用 Moq 模拟 MCProtocol）</summary>
+/// <summary>MCDriver 드라이버 계층 테스트 (Moq로 MCProtocol을 목 처리)</summary>
 public class MCDriverTests
 {
     #region Open / Close
@@ -69,10 +69,10 @@ public class MCDriverTests
         Assert.NotNull(link);
 
         driver.Close(node1);
-        Assert.NotNull(driver.Link); // 还有一个节点
+        Assert.NotNull(driver.Link); // 노드가 하나 더 있음
 
         driver.Close(node2);
-        Assert.Null(driver.Link);    // 最后一个关闭后 Link 应为 null
+        Assert.Null(driver.Link);    // 마지막 노드가 닫힌 후 Link는 null이어야 함
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class MCDriverTests
         var p = new MCParameter { Address = "127.0.0.1:6000" };
         var node = driver.Open(null, p);
 
-        // 模拟 MCProtocol
+        // MCProtocol을 목 처리
         var mock = new Mock<MCProtocol> { CallBase = false };
         mock.Setup(e => e.ReadWords(DeviceCode.D, 100, It.IsAny<Int32>()))
             .Returns([0x0001, 0x0002, 0x0003, 0x0004, 0x0005]);
@@ -126,7 +126,7 @@ public class MCDriverTests
         var p = new MCParameter { Address = "127.0.0.1:6000" };
         var node = driver.Open(null, p);
 
-        // 模拟 MCProtocol
+        // MCProtocol을 목 처리
         var mock = new Mock<MCProtocol> { CallBase = false };
         mock.Setup(e => e.ReadBits(DeviceCode.M, 200, It.IsAny<Int32>()))
             .Returns([true, false, true, true, false, false, true, false]);
@@ -254,7 +254,7 @@ public class MCDriverTests
             .Select(i => (IPoint)new PointModel { Name = "p" + i, Address = "D" + (100 + i) })
             .ToList();
 
-        // BatchSize=4: 前4个一批，5-8一批，最后2个一批
+        // BatchSize=4: 처음 4개 1배치, 5~8개 1배치, 마지막 2개 1배치
         var segs = driver.BuildSegments(points, new MCParameter { BatchSize = 4 });
         Assert.Equal(3, segs.Count);
         Assert.Equal(4, segs[0].Count);
@@ -390,10 +390,10 @@ public class MCDriverTests
         var node = driver.Open(null, p);
 
         var mock = new Mock<MCProtocol> { CallBase = false };
-        // D段抛异常
+        // D 세그먼트에서 예외 발생
         mock.Setup(e => e.ReadWords(DeviceCode.D, It.IsAny<Int32>(), It.IsAny<Int32>()))
             .Throws(new InvalidOperationException("D段模拟失败"));
-        // M段正常
+        // M 세그먼트는 정상
         mock.Setup(e => e.ReadBits(DeviceCode.M, 0, It.IsAny<Int32>()))
             .Returns([true, false]);
         driver.Link = mock.Object;
@@ -405,10 +405,10 @@ public class MCDriverTests
             new PointModel { Name = "m1",   Address = "M1"   },
         };
 
-        // 不应抛出异常
+        // 예외가 발생하면 안 됨
         var rs = driver.Read(node, [.. points]);
 
-        // D100 因异常没有值，M0/M1 应正常读取
+        // D100은 예외로 값이 없고, M0/M1은 정상적으로 읽혀야 함
         Assert.Null(rs.GetValue("d100"));
         Assert.Equal(true,  rs.GetValue("m0"));
         Assert.Equal(false, rs.GetValue("m1"));
@@ -416,7 +416,7 @@ public class MCDriverTests
 
     #endregion
 
-    #region 标签名访问（Tag）
+    #region 태그 이름 접근 (Tag)
 
     [Fact]
     [DisplayName("SetTag 存储标签映射")]

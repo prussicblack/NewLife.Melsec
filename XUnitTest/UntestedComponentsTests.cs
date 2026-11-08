@@ -9,10 +9,10 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>对无专用测试的功能点进行补充测试（SYS-3、SYS-4、FXL-9、MC-7、MC-11）</summary>
+/// <summary>전용 테스트가 없는 기능 항목에 대한 보완 테스트 (SYS-3, SYS-4, FXL-9, MC-7, MC-11)</summary>
 public class UntestedComponentsTests
 {
-    #region SYS-3 SerialPortConfig 串口配置持久化
+    #region SYS-3 SerialPortConfig 시리얼 포트 구성 영속화
 
     [Fact]
     [DisplayName("SerialPortConfig 默认值验证")]
@@ -78,7 +78,7 @@ public class UntestedComponentsTests
         Assert.Equal("us-ascii", config.WebEncoding);
         Assert.Equal(System.Text.Encoding.ASCII, config.Encoding);
 
-        // 切回 UTF-8
+        // UTF-8로 다시 전환
         config.WebEncoding = "utf-8";
         Assert.Equal("utf-8", config.WebEncoding);
     }
@@ -96,7 +96,7 @@ public class UntestedComponentsTests
 
     #endregion
 
-    #region SYS-4 MelsecNode 节点模型
+    #region SYS-4 MelsecNode 노드 모델
 
     [Fact]
     [DisplayName("MelsecNode 属性设置与读取")]
@@ -144,7 +144,7 @@ public class UntestedComponentsTests
 
     #endregion
 
-    #region FXL-9 FxLinksParameter 驱动参数
+    #region FXL-9 FxLinksParameter 드라이버 매개변수
 
     [Fact]
     [DisplayName("FxLinksParameter 默认值验证")]
@@ -206,7 +206,7 @@ public class UntestedComponentsTests
     [DisplayName("FxLinksParameter FxLinks 串口参数符合规范")]
     public void FxLinksParameter_FxLinkDefaults()
     {
-        // FxLinks 规范要求：9600, 7, Even, One
+        // FxLinks 규격 요건: 9600, 7, Even, One
         var param = new FxLinksParameter();
         Assert.Equal(9600, param.Baudrate);
         Assert.Equal(7, param.DataBits);
@@ -216,7 +216,7 @@ public class UntestedComponentsTests
 
     #endregion
 
-    #region MC-7 MCParameter 驱动参数
+    #region MC-7 MCParameter 드라이버 매개변수
 
     [Fact]
     [DisplayName("MCParameter 默认值验证")]
@@ -272,7 +272,7 @@ public class UntestedComponentsTests
     [DisplayName("MCParameter 支持三种帧类型")]
     public void MCParameter_FrameTypeEnum()
     {
-        // 验证枚举存在且可赋值
+        // 열거형이 존재하고 할당 가능한지 검증
         Assert.Equal(0, (Int32)MCFrameType.Frame3E);
         Assert.Equal(1, (Int32)MCFrameType.Frame1E);
         Assert.Equal(2, (Int32)MCFrameType.Frame4E);
@@ -301,7 +301,7 @@ public class UntestedComponentsTests
 
     #endregion
 
-    #region MC-11 MCDriver 1E 模式切换
+    #region MC-11 MCDriver 1E 모드 전환
 
     [Fact]
     [DisplayName("MCFrameTypeHelper.Is1E 正确判断 1E 帧")]
@@ -334,14 +334,14 @@ public class UntestedComponentsTests
     [DisplayName("MC1EMessage 读字请求 BuildReadWord 格式正确")]
     public void MC1EMessage_BuildReadWord_Format()
     {
-        // 1E 帧字读请求：副头=0x00 + PLC号=0xFF + 定时器 + 起始地址 + 代码 + 点数
+        // 1E 프레임 워드 읽기 요청: 서브헤드=0x00 + PLC 번호=0xFF + 타이머 + 시작 주소 + 코드 + 포인트 수
         var msg = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 100, 4);
         var bytes = msg.ToBytes();
 
-        // 固定头长度 = 9 字节
+        // 고정 헤드 길이 = 9바이트
         Assert.Equal(9, bytes.Length);
-        Assert.Equal(0x00, bytes[0]); // 字读副头
-        Assert.Equal(0xFF, bytes[1]); // PLC号
+        Assert.Equal(0x00, bytes[0]); // 워드 읽기 서브헤드
+        Assert.Equal(0xFF, bytes[1]); // PLC 번호
         Assert.Equal(4, msg.Count);
     }
 
@@ -364,7 +364,7 @@ public class UntestedComponentsTests
         var msg = MC1EMessage.BuildWriteWord(MC1EDeviceCode.D, 100, values);
         var bytes = msg.ToBytes();
 
-        // 固定头 9 字节 + 数据 4 字节 = 13 字节
+        // 고정 헤드 9바이트 + 데이터 4바이트 = 13바이트
         Assert.Equal(13, bytes.Length);
         Assert.Equal(MC1EMessage.SUB_WRITE_WORD, msg.SubHeader);
         Assert.Equal(0xFF, bytes[1]);
@@ -393,7 +393,7 @@ public class UntestedComponentsTests
     [DisplayName("MC1EResponse 字读响应解析正确")]
     public void MC1EResponse_ReadWordResponse()
     {
-        // 1E 响应：副头(1) + 结束码(1) + 数据(N)
+        // 1E 응답: 서브헤드(1) + 종료 코드(1) + 데이터(N)
         // D100=0x1234, D101=0x5678
         var responseData = new Byte[] { 0xD0, 0x00, 0x34, 0x12, 0x78, 0x56 };
         var response = new MC1EResponse();
@@ -410,8 +410,8 @@ public class UntestedComponentsTests
     [DisplayName("MC1EResponse 错误响应解析")]
     public void MC1EResponse_ErrorResponse()
     {
-        // 结束码非零
-        var responseData = new Byte[] { 0xD0, 0x52 }; // 0x52 = 错误
+        // 종료 코드가 0이 아님
+        var responseData = new Byte[] { 0xD0, 0x52 }; // 0x52 = 오류
         var response = new MC1EResponse();
         var ok = response.Read(responseData);
 

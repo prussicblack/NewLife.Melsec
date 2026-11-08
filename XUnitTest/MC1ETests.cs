@@ -6,18 +6,18 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MC协议1E帧编解码与驱动测试</summary>
+/// <summary>MC 프로토콜 1E 프레임 인코딩/디코딩 및 드라이버 테스트</summary>
 public class MC1ETests
 {
-    #region MC1EMessage 请求帧编码
+    #region MC1EMessage 요청 프레임 인코딩
 
     [Fact]
     [DisplayName("1E 读字请求 D100×4 编码")]
     public void BuildReadWord_D100_4Words()
     {
-        // A 系列 1E 帧：读 D100 起 4 个字
+        // A 시리즈 1E 프레임: D100부터 4개의 워드 읽기
         // D=0x40, addr=100=0x0064, count=4
-        // 副头(0x00) + PLC号(0xFF) + 监视定时器(0A00) + 起始地址(6400) + 软元件代码(40) + 点数(0400)
+        // 서브헤드(0x00) + PLC 번호(0xFF) + 모니터링 타이머(0A00) + 시작 주소(6400) + 소프트 요소 코드(40) + 포인트 수(0400)
         var expected = "00-FF-0A-00-64-00-40-04-00".ToHex();
 
         var msg = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 100, 4);
@@ -61,7 +61,7 @@ public class MC1ETests
     public void BuildReadBit_M200_8Bits()
     {
         // M=0x10, addr=200=0x00C8, count=8
-        // 副头(0x01=位读) + PLC号(0xFF) + 监视定时器(0A00) + 起始地址(C800) + 软元件代码(10) + 点数(0800)
+        // 서브헤드(0x01=비트 읽기) + PLC 번호(0xFF) + 모니터링 타이머(0A00) + 시작 주소(C800) + 소프트 요소 코드(10) + 포인트 수(0800)
         var expected = "01-FF-0A-00-C8-00-10-08-00".ToHex();
 
         var msg = MC1EMessage.BuildReadBit(MC1EDeviceCode.M, 200, 8);
@@ -90,11 +90,11 @@ public class MC1ETests
     [DisplayName("1E 写字请求 D100 写入3个字 编码")]
     public void BuildWriteWord_D100_3Values()
     {
-        // 副头(0x02=字写) + 数据 [01,00,02,00,03,00]
+        // 서브헤드(0x02=워드 쓰기) + 데이터 [01,00,02,00,03,00]
         var msg = MC1EMessage.BuildWriteWord(MC1EDeviceCode.D, 100, new UInt16[] { 1, 2, 3 });
         var bytes = msg.ToBytes();
 
-        // 验证 Round-trip
+        // Round-trip 검증
         var decoded = new MC1EMessage();
         Assert.True(decoded.Read(bytes));
 
@@ -123,13 +123,13 @@ public class MC1ETests
 
     #endregion
 
-    #region MC1EResponse 响应解析
+    #region MC1EResponse 응답 파싱
 
     [Fact]
     [DisplayName("1E 读字成功响应解析")]
     public void ReadWordResponse_Success()
     {
-        // 响应：副头(0x00) + 结束码(0x00) + 数据(1100 2200 3300 4400)
+        // 응답: 서브헤드(0x00) + 종료 코드(0x00) + 데이터(1100 2200 3300 4400)
         var data = "00-00-11-00-22-00-33-00-44-00".ToHex();
 
         var response = new MC1EResponse();
@@ -149,7 +149,7 @@ public class MC1ETests
     [DisplayName("1E 读位成功响应解析")]
     public void ReadBitResponse_Success()
     {
-        // 位响应 M0×8: [ON, OFF, ON, OFF, ON, OFF, ON, OFF]
+        // 비트 응답 M0×8: [ON, OFF, ON, OFF, ON, OFF, ON, OFF]
         // PackBits → [0x01, 0x01, 0x01, 0x01]
         var data = "00-00-01-01-01-01".ToHex();
 
@@ -173,7 +173,7 @@ public class MC1ETests
     [DisplayName("1E 错误响应解析")]
     public void Read_ErrorResponse()
     {
-        // 副头 0x80=读异常，结束码 0x50=错误
+        // 서브헤드 0x80=읽기 오류, 종료 코드 0x50=오류
         var data = "80-50".ToHex();
 
         var response = new MC1EResponse();
@@ -188,7 +188,7 @@ public class MC1ETests
     [DisplayName("1E 写入成功响应解析")]
     public void Read_WriteResponse_Success()
     {
-        // 副头 0x00=写入成功，结束码 0x00
+        // 서브헤드 0x00=쓰기 성공, 종료 코드 0x00
         var data = "00-00".ToHex();
 
         var response = new MC1EResponse();
@@ -220,7 +220,7 @@ public class MC1ETests
 
     #endregion
 
-    #region 设备代码映射
+    #region 디바이스 코드 매핑
 
     [Fact]
     [DisplayName("DeviceCode 3E→1E 映射验证")]
@@ -253,7 +253,7 @@ public class MC1ETests
 
     #endregion
 
-    #region 边界情况
+    #region 경계 상황
 
     [Fact]
     [DisplayName("1E 空数据返回 false")]
@@ -271,7 +271,7 @@ public class MC1ETests
     public void Read_ShortData_ReturnsFalse()
     {
         var msg = new MC1EMessage();
-        Assert.False(msg.Read(new Byte[] { 0x00 })); // 只有1字节，不够最小头长度
+        Assert.False(msg.Read(new Byte[] { 0x00 })); // 바이트가 1개뿐이라 최소 헤드 길이에 부족
     }
 
     [Fact]

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MC协议3E帧 ASCII 模式序列化/反序列化测试</summary>
+/// <summary>MC 프로토콜 3E 프레임 ASCII 모드 직렬화/역직렬화 테스트</summary>
 public class MCMessageAsciiTests
 {
     #region BuildReadWord
@@ -16,7 +16,7 @@ public class MCMessageAsciiTests
     [DisplayName("ASCII 读字请求 D100×4 编码验证")]
     public void BuildReadWord_D100_4Words_Ascii()
     {
-        // 先构建二进制模式消息获取二进制字节，再验证 ASCII 模式与之等价
+        // 먼저 바이너리 모드 메시지를 만들어 바이너리 바이트를 얻은 뒤, ASCII 모드가 그와 동일한지 검증
         var binaryMsg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
         var expectedHexText = binaryMsg.ToBytes().ToHex();
 
@@ -24,7 +24,7 @@ public class MCMessageAsciiTests
         asciiMsg.DataFormat = MCDataFormat.Ascii;
         var actual = asciiMsg.ToBytes();
 
-        // ASCII 模式下 ToBytes 返回的是 ASCII 十六进制文本的字节
+        // ASCII 모드에서 ToBytes는 ASCII 16진수 텍스트의 바이트를 반환
         var actualText = System.Text.Encoding.ASCII.GetString(actual);
         Assert.Equal(expectedHexText, actualText);
     }
@@ -37,7 +37,7 @@ public class MCMessageAsciiTests
         original.DataFormat = MCDataFormat.Ascii;
         var bytes = original.ToBytes();
 
-        // 反序列化时使用 ASCII 模式
+        // 역직렬화 시 ASCII 모드 사용
         var decoded = new MCMessage { DataFormat = MCDataFormat.Ascii };
         var ok = decoded.Read(new MemoryStream(bytes), null);
 
@@ -151,12 +151,12 @@ public class MCMessageAsciiTests
     public void BuildWriteBit_Y0_4Bits_Ascii()
     {
         // Y0=0x9D, addr=0, count=4, values=[1,0,1,0]
-        // 二进制写位数据：[0x01, 0x01] （每字节低4位=第1点，高4位=第2点，2点/字节)
+        // 바이너리 비트 쓰기 데이터: [0x01, 0x01] (바이트당 하위 4비트=1번째 포인트, 상위 4비트=2번째 포인트, 2포인트/바이트)
         var msg = MCMessage.BuildWriteBit(DeviceCode.Y, 0, new UInt16[] { 1, 0, 1, 0 });
         msg.DataFormat = MCDataFormat.Ascii;
         var bytes = msg.ToBytes();
 
-        // 验证 Round-trip
+        // Round-trip 검증
         var decoded = new MCMessage { DataFormat = MCDataFormat.Ascii };
         Assert.True(decoded.Read(new MemoryStream(bytes), null));
 
@@ -169,13 +169,13 @@ public class MCMessageAsciiTests
 
     #endregion
 
-    #region 边界情况
+    #region 경계 상황
 
     [Fact]
     [DisplayName("ASCII 模式非 5000 子头应返回 false")]
     public void Read_InvalidSubHeader_ReturnsFalse_Ascii()
     {
-        // 使用错误的子头 "6000"，其他字节用有效帧填充
+        // 잘못된 서브헤드 "6000" 사용, 나머지 바이트는 유효 프레임으로 채움
         var hex = "600000FFFF03000C000A000104000000640000A80400";
         var invalidBytes = System.Text.Encoding.ASCII.GetBytes(hex);
 
@@ -189,7 +189,7 @@ public class MCMessageAsciiTests
     [DisplayName("ASCII 与二进制模式产生等价的帧内容")]
     public void AsciiAndBinary_EquivalentContent()
     {
-        // ASCII 和二进制模式应该有相同的字段值
+        // ASCII와 바이너리 모드는 동일한 필드 값을 가져야 한다
         var binaryMsg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
         var asciiMsg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
         asciiMsg.DataFormat = MCDataFormat.Ascii;
@@ -197,10 +197,10 @@ public class MCMessageAsciiTests
         var binaryBytes = binaryMsg.ToBytes();
         var asciiBytes = asciiMsg.ToBytes();
 
-        // ASCII 模式应该比二进制模式字节数多
+        // ASCII 모드는 바이너리 모드보다 바이트 수가 많아야 한다
         Assert.True(asciiBytes.Length > binaryBytes.Length);
 
-        // ASCII 模式输出的是 ASCII 十六进制文本，将文本解码后应与二进制模式一致
+        // ASCII 모드는 ASCII 16진수 텍스트를 출력하므로, 텍스트를 복호화하면 바이너리 모드와 일치해야 한다
         var asciiHexString = System.Text.Encoding.ASCII.GetString(asciiBytes);
         var decodedFromAscii = asciiHexString.ToHex();
         Assert.Equal(binaryBytes, decodedFromAscii);

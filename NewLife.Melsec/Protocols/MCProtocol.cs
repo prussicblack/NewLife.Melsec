@@ -1,75 +1,75 @@
-﻿using System.Net.Sockets;
+using System.Net.Sockets;
 using NewLife.Log;
 
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>MC协议传输模式</summary>
+/// <summary>MC 프로토콜 전송 모드</summary>
 public enum MCTransportMode
 {
-    /// <summary>TCP 传输（默认）</summary>
+    /// <summary>TCP 전송 (기본)</summary>
     Tcp = 0,
 
-    /// <summary>UDP 传输</summary>
+    /// <summary>UDP 전송</summary>
     Udp = 1,
 
-    /// <summary>串口传输（RS-232/RS-485）。帧格式与 3E/1E 相同，通过 SerialPort 传输</summary>
+    /// <summary>시리얼 포트 전송 (RS-232/RS-485). 3E/1E와 동일한 프레임 형식, SerialPort로 전송</summary>
     Serial = 2,
 }
 
-/// <summary>三菱MC协议栈（TCP长连接，支持 3E/1E 帧）</summary>
+/// <summary>미쓰비시 MC 프로토콜 스택 (TCP 롱 커넥션, 3E/1E 프레임 지원)</summary>
 /// <remarks>
-/// 负责管理与 PLC 的 TCP 连接，提供字/位软元件的批量读写。
-/// 支持 3E 帧（Qna 兼容）和 1E 帧（A 系列兼容）两种帧格式。
-/// 3E 帧支持二进制模式和 ASCII 十六进制模式两种数据格式。
-/// 连接断开时自动重连；所有操作均加锁保证线程安全。
+/// PLC와의 TCP 연결을 관리하고 워드/비트 소프트 요소의 벌크 읽기/쓰기를 제공한다.
+/// 3E 프레임 (Qna 호환)과 1E 프레임 (A 시리즈 호환) 두 가지 프레임 형식을 지원.
+/// 3E 프레임은 바이너리 모드와 ASCII 16진 모드의 두 가지 데이터 형식을 지원.
+/// 연결이 끊기면 자동 재연결; 모든 작업은 락을 통해 스레드 안전성을 보장.
 /// </remarks>
 public class MCProtocol : DisposeBase
 {
-    #region 属性
+    #region 속성
 
-    /// <summary>名称</summary>
+    /// <summary>이름</summary>
     public String Name { get; set; }
 
-    /// <summary>PLC地址。格式：IP:端口（如 192.168.1.10:6000）或串口名（如 COM3）</summary>
+    /// <summary>PLC 주소. 형식: IP:포트 (예: 192.168.1.10:6000) 또는 시리얼 포트 이름 (예: COM3)</summary>
     public String Address { get; set; }
 
-    /// <summary>帧类型。3E 帧（默认）、1E 帧或 4E 帧</summary>
+    /// <summary>프레임 타입. 3E 프레임 (기본), 1E 프레임 또는 4E 프레임</summary>
     public MCFrameType FrameType { get; set; } = MCFrameType.Frame3E;
 
-    /// <summary>4E 帧序列号计数器。每次发送 4E 帧请求时递增</summary>
+    /// <summary>4E 프레임 시리얼 번호 카운터. 4E 프레임 요청을 전송할 때마다 증가</summary>
     private UInt16 _serialNumber;
 
-    /// <summary>传输模式。TCP（默认）、UDP 或 Serial（串口）</summary>
+    /// <summary>전송 모드. TCP (기본), UDP 또는 Serial (시리얼 포트)</summary>
     public MCTransportMode TransportMode { get; set; } = MCTransportMode.Tcp;
 
-    /// <summary>网络号（仅 3E 帧）。通常 0x00</summary>
+    /// <summary>네트워크 번호 (3E 프레임 전용). 보통 0x00</summary>
     public Byte NetworkNo { get; set; } = 0x00;
 
-    /// <summary>PC号（仅 3E 帧）。通常 0xFF</summary>
+    /// <summary>PC 번호 (3E 프레임 전용). 보통 0xFF</summary>
     public Byte PCNo { get; set; } = 0xFF;
 
-    /// <summary>数据格式（仅 3E 帧）。默认二进制模式，可切换为 ASCII 十六进制模式</summary>
+    /// <summary>데이터 형식 (3E 프레임 전용). 기본 바이너리 모드, ASCII 16진 모드로 전환 가능</summary>
     public MCDataFormat DataFormat { get; set; } = MCDataFormat.Binary;
 
-    /// <summary>网络超时（毫秒）。默认 5000ms</summary>
+    /// <summary>네트워크 타임아웃 (밀리초). 기본 5000ms</summary>
     public Int32 Timeout { get; set; } = 5000;
 
-    /// <summary>波特率（串口模式）。默认 9600</summary>
+    /// <summary>보레이트 (시리얼 포트 모드). 기본 9600</summary>
     public Int32 Baudrate { get; set; } = 9600;
 
-    /// <summary>数据位（串口模式）。默认 8</summary>
+    /// <summary>데이터 비트 (시리얼 포트 모드). 기본 8</summary>
     public Int32 DataBits { get; set; } = 8;
 
-    /// <summary>奇偶校验（串口模式）。默认 None</summary>
+    /// <summary>패리티 (시리얼 포트 모드). 기본 None</summary>
     public System.IO.Ports.Parity Parity { get; set; } = System.IO.Ports.Parity.None;
 
-    /// <summary>停止位（串口模式）。默认 One</summary>
+    /// <summary>스톱 비트 (시리얼 포트 모드). 기본 One</summary>
     public System.IO.Ports.StopBits StopBits { get; set; } = System.IO.Ports.StopBits.One;
 
-    /// <summary>性能追踪器</summary>
+    /// <summary>성능 트래커</summary>
     public ITracer Tracer { get; set; }
 
-    /// <summary>日志</summary>
+    /// <summary>로그</summary>
     public ILog Log { get; set; }
 
     private TcpClient _client;
@@ -81,12 +81,12 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 构造
+    #region 생성
 
-    /// <summary>实例化</summary>
+    /// <summary>인스턴스화</summary>
     public MCProtocol() => Name = GetType().Name;
 
-    /// <summary>销毁</summary>
+    /// <summary>소멸</summary>
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
@@ -95,9 +95,9 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 连接管理
+    #region 연결 관리
 
-    /// <summary>打开连接（TCP/UDP/Serial）</summary>
+    /// <summary>연결 열기 (TCP/UDP/Serial)</summary>
     public void Open()
     {
         if (TransportMode == MCTransportMode.Serial)
@@ -152,7 +152,7 @@ public class MCProtocol : DisposeBase
         }
     }
 
-    /// <summary>关闭连接</summary>
+    /// <summary>연결 닫기</summary>
     public void Close()
     {
         _stream?.Dispose();
@@ -168,7 +168,7 @@ public class MCProtocol : DisposeBase
         }
     }
 
-    /// <summary>确保连接有效，断线则重连</summary>
+    /// <summary>연결이 유효한지 확인, 끊기면 재연결</summary>
     protected void EnsureConnect()
     {
         if (TransportMode == MCTransportMode.Serial)
@@ -187,13 +187,13 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 读写接口
+    #region 읽기/쓰기 인터페이스
 
-    /// <summary>批量读取字软元件</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="count">点数（最大 960）</param>
-    /// <returns>字数据数组</returns>
+    /// <summary>워드 소프트 요소 벌크 읽기</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="count">포인트 수 (최대 960)</param>
+    /// <returns>워드 데이터 배열</returns>
     public virtual UInt16[] ReadWords(DeviceCode devCode, Int32 startAddr, Int32 count)
     {
         var msg = MCMessage.BuildReadWord(devCode, startAddr, count);
@@ -209,11 +209,11 @@ public class MCProtocol : DisposeBase
         return response.GetWordData();
     }
 
-    /// <summary>批量读取位软元件</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="count">点数（最大 7168）</param>
-    /// <returns>位数据数组（true=ON，false=OFF）</returns>
+    /// <summary>비트 소프트 요소 벌크 읽기</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="count">포인트 수 (최대 7168)</param>
+    /// <returns>비트 데이터 배열 (true=ON, false=OFF)</returns>
     public virtual Boolean[] ReadBits(DeviceCode devCode, Int32 startAddr, Int32 count)
     {
         var msg = MCMessage.BuildReadBit(devCode, startAddr, count);
@@ -229,10 +229,10 @@ public class MCProtocol : DisposeBase
         return response.GetBitData(count);
     }
 
-    /// <summary>批量写入字软元件</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="values">字数据（最大 960 字）</param>
+    /// <summary>워드 소프트 요소 벌크 쓰기</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="values">워드 데이터 (최대 960 워드)</param>
     public virtual void WriteWords(DeviceCode devCode, Int32 startAddr, UInt16[] values)
     {
         var msg = MCMessage.BuildWriteWord(devCode, startAddr, values);
@@ -246,10 +246,10 @@ public class MCProtocol : DisposeBase
             throw new MCException(response.EndCode);
     }
 
-    /// <summary>批量写入位软元件</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="values">位数据（true=ON，false=OFF）</param>
+    /// <summary>비트 소프트 요소 벌크 쓰기</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="values">비트 데이터 (true=ON, false=OFF)</param>
     public virtual void WriteBits(DeviceCode devCode, Int32 startAddr, Boolean[] values)
     {
         var ushorts = Array.ConvertAll(values, v => v ? (UInt16)1 : (UInt16)0);
@@ -266,13 +266,13 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 1E 帧读写
+    #region 1E 프레임 읽기/쓰기
 
-    /// <summary>1E 帧批量读取字软元件</summary>
-    /// <param name="devCode">软元件代码（A 系列兼容）</param>
-    /// <param name="startAddr">起始地址（16 位）</param>
-    /// <param name="count">点数</param>
-    /// <returns>字数据数组</returns>
+    /// <summary>1E 프레임 워드 소프트 요소 벌크 읽기</summary>
+    /// <param name="devCode">소프트 요소 코드 (A 시리즈 호환)</param>
+    /// <param name="startAddr">시작 주소 (16비트)</param>
+    /// <param name="count">포인트 수</param>
+    /// <returns>워드 데이터 배열</returns>
     public virtual UInt16[] ReadWords1E(MC1EDeviceCode devCode, UInt16 startAddr, Int32 count)
     {
         var msg = MC1EMessage.BuildReadWord(devCode, startAddr, count);
@@ -283,11 +283,11 @@ public class MCProtocol : DisposeBase
         return response.GetWordData();
     }
 
-    /// <summary>1E 帧批量读取位软元件</summary>
-    /// <param name="devCode">软元件代码（A 系列兼容）</param>
-    /// <param name="startAddr">起始地址（16 位）</param>
-    /// <param name="count">点数</param>
-    /// <returns>位数据数组（true=ON，false=OFF）</returns>
+    /// <summary>1E 프레임 비트 소프트 요소 벌크 읽기</summary>
+    /// <param name="devCode">소프트 요소 코드 (A 시리즈 호환)</param>
+    /// <param name="startAddr">시작 주소 (16비트)</param>
+    /// <param name="count">포인트 수</param>
+    /// <returns>비트 데이터 배열 (true=ON, false=OFF)</returns>
     public virtual Boolean[] ReadBits1E(MC1EDeviceCode devCode, UInt16 startAddr, Int32 count)
     {
         var msg = MC1EMessage.BuildReadBit(devCode, startAddr, count);
@@ -298,10 +298,10 @@ public class MCProtocol : DisposeBase
         return response.GetBitData(count);
     }
 
-    /// <summary>1E 帧批量写入字软元件</summary>
-    /// <param name="devCode">软元件代码（A 系列兼容）</param>
-    /// <param name="startAddr">起始地址（16 位）</param>
-    /// <param name="values">字数据</param>
+    /// <summary>1E 프레임 워드 소프트 요소 벌크 쓰기</summary>
+    /// <param name="devCode">소프트 요소 코드 (A 시리즈 호환)</param>
+    /// <param name="startAddr">시작 주소 (16비트)</param>
+    /// <param name="values">워드 데이터</param>
     public virtual void WriteWords1E(MC1EDeviceCode devCode, UInt16 startAddr, UInt16[] values)
     {
         var msg = MC1EMessage.BuildWriteWord(devCode, startAddr, values);
@@ -310,10 +310,10 @@ public class MCProtocol : DisposeBase
             throw new MCException(response.EndCode);
     }
 
-    /// <summary>1E 帧批量写入位软元件</summary>
-    /// <param name="devCode">软元件代码（A 系列兼容）</param>
-    /// <param name="startAddr">起始地址（16 位）</param>
-    /// <param name="values">位数据（true=ON，false=OFF）</param>
+    /// <summary>1E 프레임 비트 소프트 요소 벌크 쓰기</summary>
+    /// <param name="devCode">소프트 요소 코드 (A 시리즈 호환)</param>
+    /// <param name="startAddr">시작 주소 (16비트)</param>
+    /// <param name="values">비트 데이터 (true=ON, false=OFF)</param>
     public virtual void WriteBits1E(MC1EDeviceCode devCode, UInt16 startAddr, Boolean[] values)
     {
         var ushorts = Array.ConvertAll(values, v => v ? (UInt16)1 : (UInt16)0);
@@ -325,12 +325,12 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 类型转换读取
+    #region 타입 변환 읽기
 
-    /// <summary>批量读取 Int32 类型数据（每值 2 字，带符号）</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="count">点数</param>
+    /// <summary>Int32 타입 데이터 벌크 읽기 (값당 2워드, 부호 있음)</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="count">포인트 수</param>
     public virtual Int32[] ReadInt32(DeviceCode devCode, Int32 startAddr, Int32 count)
     {
         var words = ReadWords(devCode, startAddr, count * 2);
@@ -342,10 +342,10 @@ public class MCProtocol : DisposeBase
         return result;
     }
 
-    /// <summary>批量读取 UInt32 类型数据（每值 2 字）</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="count">点数</param>
+    /// <summary>UInt32 타입 데이터 벌크 읽기 (값당 2워드)</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="count">포인트 수</param>
     public virtual UInt32[] ReadUInt32(DeviceCode devCode, Int32 startAddr, Int32 count)
     {
         var words = ReadWords(devCode, startAddr, count * 2);
@@ -357,10 +357,10 @@ public class MCProtocol : DisposeBase
         return result;
     }
 
-    /// <summary>批量读取 Single（Float）类型数据（每值 2 字，IEEE 754）</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="count">点数</param>
+    /// <summary>Single (Float) 타입 데이터 벌크 읽기 (값당 2워드, IEEE 754)</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="count">포인트 수</param>
     public virtual Single[] ReadSingle(DeviceCode devCode, Int32 startAddr, Int32 count)
     {
         var words = ReadWords(devCode, startAddr, count * 2);
@@ -373,10 +373,10 @@ public class MCProtocol : DisposeBase
         return result;
     }
 
-    /// <summary>批量读取 Double 类型数据（每值 4 字，IEEE 754）</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="count">点数</param>
+    /// <summary>Double 타입 데이터 벌크 읽기 (값당 4워드, IEEE 754)</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="count">포인트 수</param>
     public virtual Double[] ReadDouble(DeviceCode devCode, Int32 startAddr, Int32 count)
     {
         var words = ReadWords(devCode, startAddr, count * 4);
@@ -397,11 +397,11 @@ public class MCProtocol : DisposeBase
         return result;
     }
 
-    /// <summary>读取字符串类型数据</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="wordLength">字数</param>
-    /// <returns>ASCII 编码字符串（去除末尾空白和空字符）</returns>
+    /// <summary>문자열 타입 데이터 읽기</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="wordLength">워드 수</param>
+    /// <returns>ASCII 인코딩 문자열 (끝 공백 및 null 문자 제거)</returns>
     public virtual String ReadString(DeviceCode devCode, Int32 startAddr, Int32 wordLength)
     {
         var words = ReadWords(devCode, startAddr, wordLength);
@@ -415,7 +415,7 @@ public class MCProtocol : DisposeBase
         return str;
     }
 
-    /// <summary>1E 帧批量读取 Int32 类型数据</summary>
+    /// <summary>1E 프레임 Int32 타입 데이터 벌크 읽기</summary>
     public virtual Int32[] ReadInt32_1E(MC1EDeviceCode devCode, UInt16 startAddr, Int32 count)
     {
         var words = ReadWords1E(devCode, startAddr, count * 2);
@@ -425,7 +425,7 @@ public class MCProtocol : DisposeBase
         return result;
     }
 
-    /// <summary>1E 帧批量读取 Single 类型数据</summary>
+    /// <summary>1E 프레임 Single 타입 데이터 벌크 읽기</summary>
     public virtual Single[] ReadSingle_1E(MC1EDeviceCode devCode, UInt16 startAddr, Int32 count)
     {
         var words = ReadWords1E(devCode, startAddr, count * 2);
@@ -440,15 +440,15 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 随机读取（Random Read）
+    #region 랜덤 읽기 (Random Read)
 
-    /// <summary>随机读取多个字软元件（命令 0403h）</summary>
+    /// <summary>여러 워드 소프트 요소 랜덤 읽기 (명령 0403h)</summary>
     /// <remarks>
-    /// 单次请求读取多个不连续地址的字软元件值。
-    /// 每个地址返回 1 个字（2 字节）。
+    /// 단일 요청으로 여러 불연속 주소의 워드 소프트 요소 값을 읽는다.
+    /// 각 주소당 1워드 (2바이트) 반환.
     /// </remarks>
-    /// <param name="items">随机读取项列表（软元件代码 + 起始地址）</param>
-    /// <returns>字数据数组，按请求顺序排列</returns>
+    /// <param name="items">랜덤 읽기 항목 목록 (소프트 요소 코드 + 시작 주소)</param>
+    /// <returns>워드 데이터 배열, 요청 순서대로 정렬</returns>
     public virtual UInt16[] ReadRandomWords(params (DeviceCode code, Int32 addr)[] items)
     {
         var raw = BuildRandomReadRequestData(items);
@@ -470,9 +470,9 @@ public class MCProtocol : DisposeBase
         return response.GetWordData();
     }
 
-    /// <summary>随机读取多个位软元件（命令 0403h）</summary>
-    /// <param name="items">随机读取项列表（软元件代码 + 起始地址）</param>
-    /// <returns>位数据数组，按请求顺序排列</returns>
+    /// <summary>여러 비트 소프트 요소 랜덤 읽기 (명령 0403h)</summary>
+    /// <param name="items">랜덤 읽기 항목 목록 (소프트 요소 코드 + 시작 주소)</param>
+    /// <returns>비트 데이터 배열, 요청 순서대로 정렬</returns>
     public virtual Boolean[] ReadRandomBits(params (DeviceCode code, Int32 addr)[] items)
     {
         var raw = BuildRandomReadRequestData(items);
@@ -494,11 +494,11 @@ public class MCProtocol : DisposeBase
         return response.GetBitData(items.Length);
     }
 
-    /// <summary>构建随机读取请求数据</summary>
+    /// <summary>랜덤 읽기 요청 데이터 구성</summary>
     private static Byte[] BuildRandomReadRequestData((DeviceCode code, Int32 addr)[] items)
     {
         using var ms = new MemoryStream();
-        // 点数（1 字节）
+        // 포인트 수 (1바이트)
         ms.WriteByte((Byte)items.Length);
         for (var i = 0; i < items.Length; i++)
         {
@@ -513,10 +513,10 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 远程控制（RUN/STOP）
+    #region 리모트 제어 (RUN/STOP)
 
-    /// <summary>远程 RUN（运行）</summary>
-    /// <param name="clearMode">清除模式：0=不清除，1=清除</param>
+    /// <summary>리모트 RUN (실행)</summary>
+    /// <param name="clearMode">클리어 모드: 0=클리어 안 함, 1=클리어</param>
     public virtual void RemoteRun(Byte clearMode = 0)
     {
         var raw = new Byte[] { clearMode };
@@ -536,7 +536,7 @@ public class MCProtocol : DisposeBase
             throw new MCException(response.EndCode);
     }
 
-    /// <summary>远程 STOP（停止）</summary>
+    /// <summary>리모트 STOP (정지)</summary>
     public virtual void RemoteStop()
     {
         var msg = new MCMessage
@@ -554,13 +554,13 @@ public class MCProtocol : DisposeBase
             throw new MCException(response.EndCode);
     }
 
-    /// <summary>远程密码解锁。发送密码解锁 PLC，使其允许远程操作</summary>
+    /// <summary>리모트 비밀번호 잠금 해제. 비밀번호를 보내서 PLC가 리모트 조작을 허용하도록 함</summary>
     /// <remarks>
-    /// MC 协议命令 1630h。密码为 ASCII 字符串，发送格式为：
-    /// 密码长度(2B LE) + 密码 ASCII(N 字节)。
-    /// 解锁后 PLC 允许远程 RUN/STOP 等操作。
+    /// MC 프로토콜 명령 1630h. 비밀번호는 ASCII 문자열이며, 전송 형식:
+    /// 비밀번호 길이(2B LE) + 비밀번호 ASCII(N바이트).
+    /// 잠금 해제 후 PLC가 리모트 RUN/STOP 등 조작을 허용.
     /// </remarks>
-    /// <param name="password">密码。ASCII 字符串</param>
+    /// <param name="password">비밀번호. ASCII 문자열</param>
     public virtual void RemoteUnlock(String password)
     {
         if (password == null) throw new ArgumentNullException(nameof(password));
@@ -583,12 +583,12 @@ public class MCProtocol : DisposeBase
             throw new MCException(response.EndCode);
     }
 
-    /// <summary>远程密码锁定。发送密码重新锁定 PLC，禁止远程操作</summary>
+    /// <summary>리모트 비밀번호 잠금. 비밀번호를 보내서 PLC를 다시 잠금하고 리모트 조작을 차단</summary>
     /// <remarks>
-    /// MC 协议命令 1631h。与 RemoteUnlock 使用相同密码格式。
-    /// 锁定后 PLC 拒绝远程 RUN/STOP 等操作。
+    /// MC 프로토콜 명령 1631h. RemoteUnlock와 동일한 비밀번호 형식을 사용.
+    /// 잠금 후 PLC가 리모트 RUN/STOP 등 조작을 거부.
     /// </remarks>
-    /// <param name="password">密码。ASCII 字符串</param>
+    /// <param name="password">비밀번호. ASCII 문자열</param>
     public virtual void RemoteLock(String password)
     {
         if (password == null) throw new ArgumentNullException(nameof(password));
@@ -611,9 +611,9 @@ public class MCProtocol : DisposeBase
             throw new MCException(response.EndCode);
     }
 
-    /// <summary>构建远程密码锁定/解锁请求数据</summary>
-    /// <param name="password">ASCII 密码</param>
-    /// <returns>请求数据：密码长度(2B LE) + 密码 ASCII</returns>
+    /// <summary>리모트 비밀번호 잠금/해제 요청 데이터 구성</summary>
+    /// <param name="password">ASCII 비밀번호</param>
+    /// <returns>요청 데이터: 비밀번호 길이(2B LE) + 비밀번호 ASCII</returns>
     private static Byte[] BuildPasswordRequestData(String password)
     {
         var pwdBytes = System.Text.Encoding.ASCII.GetBytes(password);
@@ -625,13 +625,13 @@ public class MCProtocol : DisposeBase
         return ms.ToArray();
     }
 
-    /// <summary>监视注册。注册多个字/双字软元件地址，PLC 将定期更新这些地址的值</summary>
+    /// <summary>모니터링 등록. 여러 워드/더블 워드 소프트 요소 주소를 등록하면, PLC가 주기적으로 해당 주소의 값을 갱신</summary>
     /// <remarks>
-    /// MC 协议命令 0801h。注册后可调用 <see cref="MonitorRead"/> 读取已注册地址的最新值。
-    /// 单次最多监视 192 个字地址 + 192 个双字地址（或取决于 PLC 系列）。
+    /// MC 프로토콜 명령 0801h. 등록 후 <see cref="MonitorRead"/>를 호출하여 등록된 주소의 최신 값을 읽을 수 있다.
+    /// 1회 최대 192개 워드 주소 + 192개 더블 워드 주소 (PLC 시리즈에 따라 다름).
     /// </remarks>
-    /// <param name="wordDevices">字软元件列表（软元件代码 + 起始地址）</param>
-    /// <param name="doubleWordDevices">双字软元件列表（软元件代码 + 起始地址）</param>
+    /// <param name="wordDevices">워드 소프트 요소 목록 (소프트 요소 코드 + 시작 주소)</param>
+    /// <param name="doubleWordDevices">더블 워드 소프트 요소 목록 (소프트 요소 코드 + 시작 주소)</param>
     public virtual void MonitorRegist(
         (DeviceCode code, Int32 addr)[] wordDevices,
         (DeviceCode code, Int32 addr)[] doubleWordDevices)
@@ -657,7 +657,7 @@ public class MCProtocol : DisposeBase
             throw new MCException(response.EndCode);
     }
 
-    /// <summary>构建监视注册请求数据</summary>
+    /// <summary>모니터링 등록 요청 데이터 구성</summary>
     private static Byte[] BuildMonitorRegistRequestData(
         (DeviceCode code, Int32 addr)[] wordDevices,
         (DeviceCode code, Int32 addr)[] doubleWordDevices)
@@ -666,15 +666,15 @@ public class MCProtocol : DisposeBase
         if (doubleWordDevices.Length > 255) throw new ArgumentOutOfRangeException(nameof(doubleWordDevices), "双字设备数量不能超过 255");
 
         using var ms = new MemoryStream();
-        // 字设备数量（1 字节）
+        // 워드 디바이스 수 (1바이트)
         ms.WriteByte((Byte)wordDevices.Length);
-        // 双字设备数量（1 字节）
+        // 더블 워드 디바이스 수 (1바이트)
         ms.WriteByte((Byte)doubleWordDevices.Length);
-        // 保留（2 字节）
+        // 예약 (2바이트)
         ms.WriteByte(0x00);
         ms.WriteByte(0x00);
 
-        // 字设备地址列表：地址(3B LE) + 代码(1B)
+        // 워드 디바이스 주소 목록: 주소(3B LE) + 코드(1B)
         foreach (var (code, addr) in wordDevices)
         {
             ms.WriteByte((Byte)(addr & 0xFF));
@@ -683,7 +683,7 @@ public class MCProtocol : DisposeBase
             ms.WriteByte((Byte)code);
         }
 
-        // 双字设备地址列表：地址(3B LE) + 代码(1B)
+        // 더블 워드 디바이스 주소 목록: 주소(3B LE) + 코드(1B)
         foreach (var (code, addr) in doubleWordDevices)
         {
             ms.WriteByte((Byte)(addr & 0xFF));
@@ -697,18 +697,18 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 底层通信
+    #region 저수준 통신
 
-    /// <summary>发送命令并接收响应（线程安全，3E/4E 帧）</summary>
-    /// <param name="request">请求消息</param>
-    /// <returns>响应消息</returns>
+    /// <summary>명령 전송 및 응답 수신 (스레드 안전, 3E/4E 프레임)</summary>
+    /// <param name="request">요청 메시지</param>
+    /// <returns>응답 메시지</returns>
     internal protected virtual MCResponse SendCommand(MCMessage request)
     {
         lock (_lock)
         {
             EnsureConnect();
 
-            // 4E 帧自动分配序列号
+            // 4E 프레임 시리얼 번호 자동 할당
             if (request.FrameType.Is4E())
             {
                 request.SerialNumber = ++_serialNumber;
@@ -762,16 +762,16 @@ public class MCProtocol : DisposeBase
             catch (Exception ex)
             {
                 span?.SetError(ex, null);
-                // 连接可能已断开，下次重连
+                // 연결이 끊겼을 수 있음, 다음에 재연결
                 Close();
                 throw;
             }
         }
     }
 
-    /// <summary>发送 1E 帧命令并接收响应（线程安全）</summary>
-    /// <param name="request">1E 请求消息</param>
-    /// <returns>1E 响应消息</returns>
+    /// <summary>1E 프레임 명령 전송 및 응답 수신 (스레드 안전)</summary>
+    /// <param name="request">1E 요청 메시지</param>
+    /// <returns>1E 응답 메시지</returns>
     internal protected virtual MC1EResponse SendCommand1E(MC1EMessage request)
     {
         lock (_lock)
@@ -801,21 +801,21 @@ public class MCProtocol : DisposeBase
 
                 _stream.Write(buf, 0, buf.Length);
 
-                // 1E 响应固定头：副头(1) + 结束码(1) = 2 字节
+                // 1E 응답 고정 헤더: 서브헤드(1) + 종료 코드(1) = 2바이트
                 var header = new Byte[MC1EResponse.FIXED_HEADER_LEN];
                 ReadFully(_stream, header, 0, header.Length);
 
-                // 从响应数据计算剩余长度
-                // 字读：每字 2 字节；位读：每 2 点 1 字节
-                // 固定头之后即为响应数据，无长度字段，根据请求时的 count 推算
-                // 实际上，1E 帧也没有数据长度字段，需要根据读写类型和 count 推算
+                // 응답 데이터로 나머지 길이 계산
+                // 워드 읽기: 워드당 2바이트; 비트 읽기: 2포인트당 1바이트
+                // 고정 헤더 이후가 곧 응답 데이터, 길이 필드 없음, 요청 시 count로 산출
+                // 실제로 1E 프레임에도 데이터 길이 필드가 없어, 읽기/쓰기 타입과 count로 산출해야 함
                 var response = new MC1EResponse();
                 response.SubHeader = header[0];
                 response.EndCode = header[1];
 
                 if (response.EndCode == 0)
                 {
-                    // 根据请求的操作类型和数据点数推算剩余数据长度
+                    // 요청의 조작 타입과 데이터 포인트 수로 나머지 데이터 길이 산출
                     var dataLen = CalcResponseDataLength(request);
                     if (dataLen > 0)
                     {
@@ -839,7 +839,7 @@ public class MCProtocol : DisposeBase
         }
     }
 
-    /// <summary>计算 1E 帧响应数据长度</summary>
+    /// <summary>1E 프레임 응답 데이터 길이 계산</summary>
     private static Int32 CalcResponseDataLength(MC1EMessage request)
     {
         var isBit = request.SubHeader == MC1EMessage.SUB_READ_BIT ||
@@ -848,45 +848,45 @@ public class MCProtocol : DisposeBase
 
         if (isBit)
         {
-            // 位模式：每 2 点 1 字节
+            // 비트 모드: 2포인트당 1바이트
             return (count + 1) / 2;
         }
         else
         {
-            // 字模式：每字 2 字节
+            // 워드 모드: 워드당 2바이트
             return count * 2;
         }
     }
 
-    /// <summary>接收二进制模式响应</summary>
+    /// <summary>바이너리 모드 응답 수신</summary>
     private MCResponse ReceiveBinaryResponse(ISpan span)
     {
-        // 先读子头 2 字节判断帧类型
+        // 먼저 서브헤드 2바이트를 읽어 프레임 타입 판단
         var subHeader = new Byte[2];
         ReadFully(_stream, subHeader, 0, 2);
 
         var is4E = (subHeader[0] == 0xD4 && subHeader[1] == 0x00);
         var headerLen = is4E ? MCResponse.FIXED_HEADER_4E_LEN : MCResponse.FIXED_HEADER_LEN;
 
-        // 读取剩余固定头
+        // 나머지 고정 헤더 읽기
         var remainingHeader = new Byte[headerLen - 2];
         ReadFully(_stream, remainingHeader, 0, remainingHeader.Length);
 
-        // 合并完整固定头
+        // 완전한 고정 헤더 결합
         var header = new Byte[headerLen];
         Array.Copy(subHeader, 0, header, 0, 2);
         Array.Copy(remainingHeader, 0, header, 2, remainingHeader.Length);
 
-        // 从头部读取数据长度
-        // 3E: 偏移 7~8；4E: 偏移 11~12（因多了 4 字节序列号）
+        // 헤더에서 데이터 길이 읽기
+        // 3E: 오프셋 7~8; 4E: 오프셋 11~12 (4바이트 시리얼 번호 추가)
         var dataLengthOffset = is4E ? 11 : 7;
         var dataLength = header[dataLengthOffset] | (header[dataLengthOffset + 1] << 8);
 
-        // 读取可变部分：结束码(2) + 响应数据(N)
+        // 가변 부분 읽기: 종료 코드(2) + 응답 데이터(N)
         var data = new Byte[dataLength];
         ReadFully(_stream, data, 0, dataLength);
 
-        // 合并解析
+        // 결합하여 해독
         var all = new Byte[header.Length + data.Length];
         Array.Copy(header, 0, all, 0, header.Length);
         Array.Copy(data, 0, all, header.Length, data.Length);
@@ -899,15 +899,15 @@ public class MCProtocol : DisposeBase
         return response;
     }
 
-    /// <summary>串口接收二进制/ASCII 模式响应</summary>
+    /// <summary>시리얼 포트 바이너리/ASCII 모드 응답 수신</summary>
     private MCResponse ReceiveSerialResponse(ISpan span)
     {
-        // 串口没有消息边界，等待一段时间后读取所有可用字节
+        // 시리얼 포트는 메시지 경계가 없으므로, 일정 시간 대기 후 사용 가능한 바이트를 모두 읽음
         var totalTimeout = Timeout;
         var elapsed = 0;
         var waitBetween = 50;
 
-        // 等待数据到达
+        // 데이터 도달 대기
         while (elapsed < totalTimeout && _serialPort.BytesToRead < 2)
         {
             System.Threading.Thread.Sleep(waitBetween);
@@ -917,7 +917,7 @@ public class MCProtocol : DisposeBase
         if (_serialPort.BytesToRead == 0)
             throw new TimeoutException("MC 串口响应超时");
 
-        // 读取可用字节
+        // 사용 가능한 바이트 읽기
         var available = _serialPort.BytesToRead;
         var result = new Byte[available];
         _serialPort.Read(result, 0, available);
@@ -930,7 +930,7 @@ public class MCProtocol : DisposeBase
         return response;
     }
 
-    /// <summary>串口接收 1E 帧响应</summary>
+    /// <summary>시리얼 포트 1E 프레임 응답 수신</summary>
     private MC1EResponse ReceiveSerialResponse1E(MC1EMessage request, ISpan span)
     {
         var totalTimeout = Timeout;
@@ -958,7 +958,7 @@ public class MCProtocol : DisposeBase
         return response;
     }
 
-    /// <summary>UDP 接收二进制模式响应</summary>
+    /// <summary>UDP 바이너리 모드 응답 수신</summary>
     private MCResponse ReceiveBinaryResponseUdp(ISpan span)
     {
         var result = _udp.Receive(ref _remoteEndPoint);
@@ -969,7 +969,7 @@ public class MCProtocol : DisposeBase
         return response;
     }
 
-    /// <summary>UDP 接收 ASCII 模式响应</summary>
+    /// <summary>UDP ASCII 모드 응답 수신</summary>
     private MCResponse ReceiveAsciiResponseUdp(ISpan span)
     {
         var result = _udp.Receive(ref _remoteEndPoint);
@@ -980,11 +980,11 @@ public class MCProtocol : DisposeBase
         return response;
     }
 
-    /// <summary>接收 ASCII 模式响应</summary>
+    /// <summary>ASCII 모드 응답 수신</summary>
     private MCResponse ReceiveAsciiResponse(ISpan span)
     {
-        // ASCII 模式：每个字节用 2 个 ASCII 十六进制字符表示
-        // 先读子头 "D000" 或 "D400" (4 ASCII chars) 判断帧类型
+        // ASCII 모드: 각 바이트를 2개의 ASCII 16진 문자로 표현
+        // 먼저 서브헤드 "D000" 또는 "D400" (4 ASCII 문자)을 읽어 프레임 타입 판단
         var subHeaderBuf = new Byte[4];
         ReadFully(_stream, subHeaderBuf, 0, 4);
         var subHeaderHex = System.Text.Encoding.ASCII.GetString(subHeaderBuf);
@@ -993,7 +993,7 @@ public class MCProtocol : DisposeBase
         var is4E = (subHeader[0] == 0xD4 && subHeader[1] == 0x00);
         var headerAsciiLen = is4E ? MCResponse.FIXED_HEADER_4E_ASCII_LEN : MCResponse.FIXED_HEADER_ASCII_LEN;
 
-        // 读取剩余固定头
+        // 나머지 고정 헤더 읽기
         var remainingAsciiLen = headerAsciiLen - 4;
         var remainingBuf = new Byte[remainingAsciiLen];
         if (remainingAsciiLen > 0)
@@ -1002,24 +1002,24 @@ public class MCProtocol : DisposeBase
         var remainingHex = System.Text.Encoding.ASCII.GetString(remainingBuf);
         var remaining = remainingHex.ToHex();
 
-        // 合并完整固定头（二进制）
+        // 완전한 고정 헤더 결합 (바이너리)
         var header = new Byte[subHeader.Length + remaining.Length];
         Array.Copy(subHeader, 0, header, 0, subHeader.Length);
         Array.Copy(remaining, 0, header, subHeader.Length, remaining.Length);
 
-        // 从头部读取数据长度
-        // 3E: 偏移 7~8；4E: 偏移 11~12
+        // 헤더에서 데이터 길이 읽기
+        // 3E: 오프셋 7~8; 4E: 오프셋 11~12
         var dataLengthOffset = is4E ? 11 : 7;
         var dataLength = header[dataLengthOffset] | (header[dataLengthOffset + 1] << 8);
 
-        // 读取可变部分：结束码(2) + 响应数据(N) → dataLength 字节 → dataLength * 2 ASCII 字符
+        // 가변 부분 읽기: 종료 코드(2) + 응답 데이터(N) → dataLength 바이트 → dataLength * 2 ASCII 문자
         var dataAsciiLen = dataLength * 2;
         var dataBuf = new Byte[dataAsciiLen];
         ReadFully(_stream, dataBuf, 0, dataAsciiLen);
         var dataHex = System.Text.Encoding.ASCII.GetString(dataBuf);
         var data = dataHex.ToHex();
 
-        // 合并解析
+        // 결합하여 해독
         var all = new Byte[header.Length + data.Length];
         Array.Copy(header, 0, all, 0, header.Length);
         Array.Copy(data, 0, all, header.Length, data.Length);
@@ -1045,9 +1045,9 @@ public class MCProtocol : DisposeBase
 
     #endregion
 
-    #region 日志
+    #region 로그
 
-    /// <summary>日志</summary>
+    /// <summary>로그</summary>
     protected void WriteLog(String format, params Object[] args)
     {
         if (Log != null && Log != Logger.Null)

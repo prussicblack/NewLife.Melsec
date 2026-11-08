@@ -1,39 +1,39 @@
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>MC 协议帧类型</summary>
+/// <summary>MC 프로토콜 프레임 유형</summary>
 /// <remarks>
-/// 三菱 MC 协议支持多种帧格式：
-/// <see cref="Frame3E"/>（Qna 兼容 3E 帧，Q/L/iQ-R/FX5U 系列）、
-/// <see cref="Frame1E"/>（A 兼容 1E 帧，A 系列旧式 PLC）和
-/// <see cref="Frame4E"/>（扩展 4E 帧，iQ-R 系列，含序列号字段）。
+/// Mitsubishi MC 프로토콜은 여러 프레임 형식을 지원한다:
+/// <see cref="Frame3E"/> (Qna 호환 3E 프레임, Q/L/iQ-R/FX5U 시리즈),
+/// <see cref="Frame1E"/> (A 호환 1E 프레임, A 시리즈 구형 PLC) 및
+/// <see cref="Frame4E"/> (확장 4E 프레임, iQ-R 시리즈, 시퀀스 번호 필드 포함).
 /// </remarks>
 public enum MCFrameType
 {
-    /// <summary>3E 帧（Qna 兼容）。含网络号/PC 号/IO 单元号等字段，子头 5000h</summary>
+    /// <summary>3E 프레임 (Qna 호환). 네트워크 번호/PC 번호/IO 유닛 번호 등 필드 포함, 서브헤드 5000h</summary>
     Frame3E = 0,
 
-    /// <summary>1E 帧（A 兼容）。不含网络号等字段，结构更简单，子头为单字节命令</summary>
+    /// <summary>1E 프레임 (A 호환). 네트워크 번호 등 필드 없음, 구조가 더 단순하고 서브헤드가 1바이트 명령</summary>
     Frame1E = 1,
 
-    /// <summary>4E 帧（iQ-R 系列扩展）。子头 5400h/D400h，在子头后增加 4 字节序列号字段</summary>
+    /// <summary>4E 프레임 (iQ-R 시리즈 확장). 서브헤드 5400h/D400h, 서브헤드 뒤에 4바이트 시퀀스 번호 필드 추가</summary>
     /// <remarks>
-    /// 4E 帧在标准 3E 帧的子头之后插入了 4 字节的序列号字段（2 字节序列号 + 2 字节保留），
-    /// 用于请求-应答的严格匹配校验。后续字段布局与 3E 帧完全一致。
-    /// 请求子头：0x5400（二进制）/ "5400"（ASCII）
-    /// 响应子头：0xD400（二进制）/ "D400"（ASCII）
+    /// 4E 프레임은 표준 3E 프레임의 서브헤드 뒤에 4바이트 시퀀스 번호 필드 (2바이트 시퀀스 번호 + 2바이트 예약)를
+    /// 삽입하여 요청-응답의 엄밀한 매칭 검증을 수행한다. 이후 필드 레이아웃은 3E 프레임과 완전히 동일하다.
+    /// 요청 서브헤드: 0x5400 (바이너리) / "5400" (ASCII)
+    /// 응답 서브헤드: 0xD400 (바이너리) / "D400" (ASCII)
     /// </remarks>
     Frame4E = 2,
 }
 
-/// <summary>MCFrameType 扩展方法</summary>
+/// <summary>MCFrameType 확장 메서드</summary>
 internal static class MCFrameTypeHelper
 {
-    /// <summary>判断是否为 1E 帧</summary>
+    /// <summary>1E 프레임인지 판단</summary>
     public static Boolean Is1E(this MCFrameType frameType) => frameType == MCFrameType.Frame1E;
 
-    /// <summary>判断是否为 4E 帧</summary>
+    /// <summary>4E 프레임인지 판단</summary>
     public static Boolean Is4E(this MCFrameType frameType) => frameType == MCFrameType.Frame4E;
 
-    /// <summary>判断是否为 3E 或 4E 帧（共享相同后续字段布局）</summary>
+    /// <summary>3E 또는 4E 프레임인지 판단 (동일한 이후 필드 레이아웃 공유)</summary>
     public static Boolean Is3EOr4E(this MCFrameType frameType) => frameType == MCFrameType.Frame3E || frameType == MCFrameType.Frame4E;
 }

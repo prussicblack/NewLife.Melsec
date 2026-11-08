@@ -1,15 +1,15 @@
-﻿using System.Text;
+using System.Text;
 
 namespace NewLife.Melsec;
 
 internal static class HexHelper
 {
-    ///// <summary>字节转为1个16进制字符</summary>
+    ///// <summary>바이트를 16진수 문자 1개로 변환</summary>
     ///// <param name="b"></param>
     ///// <returns></returns>
     //public static String ToHexString(this Byte b) => Convert.ToString(b, 16);
 
-    /// <summary>1个字节转为2个16进制字符</summary>
+    /// <summary>바이트 1개를 16진수 문자 2개로 변환</summary>
     /// <param name="b"></param>
     /// <returns></returns>
     public static String ToHexChars(this Byte b)
@@ -24,7 +24,7 @@ internal static class HexHelper
         return new String(cs);
     }
 
-    /// <summary>字节数组转为16进制字符数组</summary>
+    /// <summary>바이트 배열을 16진수 문자열로 변환</summary>
     /// <param name="bytes"></param>
     /// <returns></returns>
     public static String ToHexString(this Byte[] bytes)
@@ -39,7 +39,7 @@ internal static class HexHelper
 
     //public static Byte ToByte(this String str) => Convert.ToByte(str, 16);
 
-    /// <summary>每个字符转为1个字节</summary>
+    /// <summary>각 문자를 바이트 1개로 변환</summary>
     /// <param name="str"></param>
     /// <returns></returns>
     public static Byte[] ToChars(this String str)
@@ -56,7 +56,7 @@ internal static class HexHelper
         return buf;
     }
 
-    /// <summary>每个字符转为1个字节</summary>
+    /// <summary>각 문자를 바이트 1개로 변환</summary>
     /// <param name="str"></param>
     /// <returns></returns>
     public static Byte[] ToBytes(this String str)
@@ -74,7 +74,7 @@ internal static class HexHelper
         return buf;
     }
 
-    /// <summary>从字符串指定位置截取2个字符转为字节</summary>
+    /// <summary>문자열의 지정된 위치에서 문자 2개를 잘라서 바이트로 변환</summary>
     /// <param name="str"></param>
     /// <param name="offset"></param>
     /// <returns></returns>

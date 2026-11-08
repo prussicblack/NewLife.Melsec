@@ -1,13 +1,13 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 using System.Text;
 using NewLife.Data;
 using NewLife.Serialization;
 
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>三菱FxLinks消息</summary>
+/// <summary>三菱 FxLinks 메시지</summary>
 /// <remarks>
-/// 功能码：
+/// 기능 코드:
 /// ENQ 05
 /// STX 02
 /// ETX 03
@@ -15,37 +15,37 @@ namespace NewLife.Melsec.Protocols;
 /// </remarks>
 public class FxLinksMessage : IAccessor
 {
-    #region 属性
-    /// <summary>控制码。02/03/05/15</summary>
+    #region 속성
+    /// <summary>제어 코드. 02/03/05/15</summary>
     public ControlCodes Code { get; set; }
 
-    /// <summary>站号</summary>
+    /// <summary>스테이션 번호</summary>
     public Byte Station { get; set; }
 
-    /// <summary>PLC号</summary>
+    /// <summary>PLC 번호</summary>
     public Byte PLC { get; set; }
 
-    /// <summary>操作码</summary>
+    /// <summary>운영 코드</summary>
     public String Command { get; set; }
 
-    /// <summary>等待字符</summary>
+    /// <summary>대기 문자</summary>
     public Byte Wait { get; set; }
 
-    /// <summary>地址</summary>
+    /// <summary>주소</summary>
     public String Address { get; set; }
 
-    /// <summary>负载数据</summary>
+    /// <summary>페이로드 데이터</summary>
     public String Payload { get; set; }
 
-    /// <summary>校验和。读取出来</summary>
+    /// <summary>체크섬. 읽어온 값</summary>
     public Byte CheckSum { get; set; }
 
-    /// <summary>校验和。计算出来</summary>
+    /// <summary>체크섬. 계산한 값</summary>
     public Byte CheckSum2 { get; set; }
     #endregion
 
-    #region 构造
-    /// <summary>已重载。友好字符串</summary>
+    #region 생성
+    /// <summary>오버라이드. 친화적인 문자열</summary>
     /// <returns></returns>
     public override String ToString()
     {
@@ -56,12 +56,12 @@ public class FxLinksMessage : IAccessor
     }
     #endregion
 
-    #region 方法
+    #region 메서드
     const Int32 HEADER05 = 2 + 2 + 2 + 1 + 5 + 2;
 
-    /// <summary>读取</summary>
-    /// <param name="stream">数据流</param>
-    /// <param name="context">上下文</param>
+    /// <summary>읽기</summary>
+    /// <param name="stream">데이터 스트림</param>
+    /// <param name="context">컨텍스트</param>
     /// <returns></returns>
     public virtual Boolean Read(Stream stream, Object context)
     {
@@ -79,7 +79,7 @@ public class FxLinksMessage : IAccessor
                     Command = hex[4..6];
                     Wait = Convert.ToByte(hex[6..7], 16);
 
-                    // 注意点位Y0
+                    // Y0 포인트에 주의
                     Address = hex[7] + hex[8..12].TrimStart('0');
                     if (Address.Length == 1) Address += '0';
 
@@ -107,9 +107,9 @@ public class FxLinksMessage : IAccessor
         return true;
     }
 
-    /// <summary>写入消息到数据流</summary>
-    /// <param name="stream">数据流</param>
-    /// <param name="context">上下文</param>
+    /// <summary>메시지를 데이터 스트림에 쓰기</summary>
+    /// <param name="stream">데이터 스트림</param>
+    /// <param name="context">컨텍스트</param>
     /// <returns></returns>
     public virtual Boolean Write(Stream stream, Object context)
     {
@@ -174,7 +174,7 @@ public class FxLinksMessage : IAccessor
         return true;
     }
 
-    /// <summary>消息转数据包</summary>
+    /// <summary>메시지를 데이터 패킷으로 변환</summary>
     /// <returns></returns>
     public IPacket ToPacket()
     {
@@ -185,7 +185,7 @@ public class FxLinksMessage : IAccessor
         return new ArrayPacket(ms);
     }
 
-    /// <summary>创建响应</summary>
+    /// <summary>응답 생성</summary>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public virtual FxLinksResponse CreateReply()
@@ -200,7 +200,7 @@ public class FxLinksMessage : IAccessor
         return msg;
     }
 
-    /// <summary>获取指令的HEX字符串形式</summary>
+    /// <summary>명령의 HEX 문자열 형식 가져오기</summary>
     /// <param name="msg"></param>
     /// <returns></returns>
     public static String GetHex(Byte[] msg)

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using NewLife.IoT;
 using NewLife.IoT.Drivers;
@@ -10,38 +10,38 @@ using NewLife.Serialization;
 
 namespace NewLife.Melsec.Drivers;
 
-/// <summary>三菱PLC MC协议驱动（以太网 3E 帧，二进制模式）</summary>
+/// <summary>미쓰비시 PLC MC 프로토콜 드라이버 (이더넷 3E 프레임, 바이너리 모드)</summary>
 /// <remarks>
-/// 通过 TCP 长连接与三菱 Q 系列、iQ-R 系列及带网口的 FX3U/FX5U PLC 通信。
-/// 实现 IDriver 接口，可无缝接入 NewLife.IoT 平台与 ZeroIoT/IoTEdge 网关。
+/// TCP 상시 연결로 미쓰비시 Q 시리즈, iQ-R 시리즈 및 이더넷 포트가 있는 FX3U/FX5U PLC와 통신한다.
+/// IDriver 인터페이스를 구현하여 NewLife.IoT 플랫폼 및 ZeroIoT/IoTEdge 게이트웨이에 시ーム리스하게 연동.
 /// </remarks>
 [Driver("MelsecMC")]
 [DisplayName("三菱MC以太网")]
 public class MCDriver : DriverBase
 {
-    #region 属性
+    #region 속성
 
-    /// <summary>MC协议链路</summary>
+    /// <summary>MC 프로토콜 링크</summary>
     public MCProtocol Link { get; set; }
 
     private Int32 _nodes;
 
     #endregion
 
-    #region IDriver 接口
+    #region IDriver 인터페이스
 
-    /// <summary>创建驱动参数对象</summary>
+    /// <summary>드라이버 매개변수 객체 생성</summary>
     protected override IDriverParameter OnCreateParameter() => new MCParameter
     {
         Address = "192.168.1.10:6000",
         Timeout = 5000,
     };
 
-    /// <summary>打开通道。一个物理 PLC 可以挂载多个逻辑设备（节点），共享同一 TCP 连接</summary>
-    /// <param name="device">逻辑设备</param>
-    /// <param name="parameter">参数</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>节点对象</returns>
+    /// <summary>채널 오픈. 하나의 물리 PLC에 여러 로직 기기(노드)를 마운트할 수 있으며, 동일한 TCP 연결을 공유</summary>
+    /// <param name="device">로직 기기</param>
+    /// <param name="parameter">매개변수</param>
+    /// <param name="cancellationToken">취소 토큰</param>
+    /// <returns>노드 객체</returns>
     public override Task<INode> OpenAsync(IDevice device, IDriverParameter? parameter, CancellationToken cancellationToken = default)
     {
         using var span = Tracer?.NewSpan("mc:Open", parameter.ToJson());
@@ -89,9 +89,9 @@ public class MCDriver : DriverBase
         return TaskEx.FromResult(node as INode);
     }
 
-    /// <summary>关闭通道</summary>
-    /// <param name="node">节点对象</param>
-    /// <param name="cancellationToken">取消令牌</param>
+    /// <summary>채널 닫기</summary>
+    /// <param name="node">노드 객체</param>
+    /// <param name="cancellationToken">취소 토큰</param>
     public override Task CloseAsync(INode node, CancellationToken cancellationToken = default)
     {
         if (Interlocked.Decrement(ref _nodes) <= 0)
@@ -102,11 +102,11 @@ public class MCDriver : DriverBase
         return TaskEx.CompletedTask;
     }
 
-    /// <summary>读取数据</summary>
-    /// <param name="node">节点对象</param>
-    /// <param name="points">点位集合。地址格式示例：D100、M200、X1F、Y2A、B100</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>读取结果</returns>
+    /// <summary>데이터 읽기</summary>
+    /// <param name="node">노드 객체</param>
+    /// <param name="points">포인트 집합. 주소 형식 예: D100, M200, X1F, Y2A, B100</param>
+    /// <param name="cancellationToken">취소 토큰</param>
+    /// <returns>읽기 결과</returns>
     public override Task<ReadResult> ReadAsync(INode node, IPoint[] points, CancellationToken cancellationToken = default)
     {
         if (points == null || points.Length == 0)
@@ -159,11 +159,11 @@ public class MCDriver : DriverBase
         });
     }
 
-    /// <summary>写入数据</summary>
-    /// <param name="node">节点对象</param>
-    /// <param name="requests">写入请求数组，每项含目标点位和值</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>批量写入结果</returns>
+    /// <summary>데이터 쓰기</summary>
+    /// <param name="node">노드 객체</param>
+    /// <param name="requests">쓰기 요청 배열, 각 항목에 대상 포인트와 값 포함</param>
+    /// <param name="cancellationToken">취소 토큰</param>
+    /// <returns>벌크 쓰기 결과</returns>
     public override Task<WriteResult> WriteAsync(INode node, WriteRequest[] requests, CancellationToken cancellationToken = default)
     {
         var successCount = 0;
@@ -200,11 +200,11 @@ public class MCDriver : DriverBase
 
     #endregion
 
-    #region 批量读取优化
+    #region 벌크 읽기 최적화
 
-    /// <summary>构建批量读取分段（按软元件代码分组 + 地址排序 + 区间合并）</summary>
-    /// <param name="points">点位集合</param>
-    /// <param name="p">驱动参数</param>
+    /// <summary>벌크 읽기 세그먼트 구성 (소프트 요소 코드별 그룹핑 + 주소 정렬 + 구간 병합)</summary>
+    /// <param name="points">포인트 집합</param>
+    /// <param name="p">드라이버 매개변수</param>
     internal IList<MCSegment> BuildSegments(IList<IPoint> points, MCParameter p)
     {
         var list = new List<MCSegment>(points.Count);
@@ -214,7 +214,7 @@ public class MCDriver : DriverBase
             list.Add(new MCSegment { Code = code, StartAddress = address, Count = 1 });
         }
 
-        // 按软元件代码 + 地址排序
+        // 소프트 요소 코드 + 주소 기준 정렬
         list = [.. list.OrderBy(e => e.Code).ThenBy(e => e.StartAddress)];
 
         var step = p.BatchStep > 1 ? p.BatchStep : 1;
@@ -255,9 +255,9 @@ public class MCDriver : DriverBase
         return rs;
     }
 
-    /// <summary>将汇聚批量读取结果分发到各点位</summary>
-    /// <param name="points">点位集合</param>
-    /// <param name="segments">分段结果</param>
+    /// <summary>병합된 벌크 읽기 결과를 각 포인트에 분배</summary>
+    /// <param name="points">포인트 집합</param>
+    /// <param name="segments">세그먼트 결과</param>
     internal IDictionary<String, Object> Dispatch(IPoint[] points, IList<MCSegment> segments)
     {
         var dic = new Dictionary<String, Object>();
@@ -284,9 +284,9 @@ public class MCDriver : DriverBase
 
     #endregion
 
-    #region 数据转换
+    #region 데이터 변환
 
-    /// <summary>将点位值转换为字软元件数组（Little-Endian）</summary>
+    /// <summary>포인트 값을 워드 소프트 요소 배열로 변환 (Little-Endian)</summary>
     protected virtual UInt16[] ConvertToWords(Object data, IPoint point, ThingSpec spec)
     {
         var type = TypeHelper.GetNetType(point);
@@ -338,45 +338,45 @@ public class MCDriver : DriverBase
 
     #endregion
 
-    #region 内部类型
+    #region 내부 타입
 
-    /// <summary>MC批量读取分段</summary>
+    /// <summary>MC 벌크 읽기 세그먼트</summary>
     [DebuggerDisplay("{Code}(start={StartAddress}, count={Count})")]
     public class MCSegment
     {
-        /// <summary>软元件代码</summary>
+        /// <summary>소프트 요소 코드</summary>
         public DeviceCode Code { get; set; }
 
-        /// <summary>起始地址</summary>
+        /// <summary>시작 주소</summary>
         public Int32 StartAddress { get; set; }
 
-        /// <summary>点数</summary>
+        /// <summary>포인트 수</summary>
         public Int32 Count { get; set; }
 
-        /// <summary>字读取结果</summary>
+        /// <summary>워드 읽기 결과</summary>
         public UInt16[] Words { get; set; }
 
-        /// <summary>位读取结果</summary>
+        /// <summary>비트 읽기 결과</summary>
         public Boolean[] Bits { get; set; }
     }
 
     #endregion
 
-    #region 标签名访问（Tag）
+    #region 태그 이름 접근 (Tag)
 
-    /// <summary>标签名到地址的映射字典。Key=标签名，Value=地址字符串（如 D100、M200）</summary>
+    /// <summary>태그 이름 → 주소 매핑 사전. Key=태그 이름, Value=주소 문자열 (예: D100, M200)</summary>
     public IDictionary<String, String> TagMap { get; set; } = new Dictionary<String, String>();
 
-    /// <summary>设置标签映射</summary>
-    /// <param name="tag">标签名</param>
-    /// <param name="address">地址字符串（如 D100、M200）</param>
+    /// <summary>태그 매핑 설정</summary>
+    /// <param name="tag">태그 이름</param>
+    /// <param name="address">주소 문자열 (예: D100, M200)</param>
     public void SetTag(String tag, String address)
     {
         TagMap[tag] = address;
     }
 
-    /// <summary>批量设置标签映射</summary>
-    /// <param name="tags">标签名→地址映射</param>
+    /// <summary>태그 매핑 벌크 설정</summary>
+    /// <param name="tags">태그 이름 → 주소 매핑</param>
     public void SetTags(IDictionary<String, String> tags)
     {
         foreach (var kv in tags)
@@ -385,11 +385,11 @@ public class MCDriver : DriverBase
         }
     }
 
-    /// <summary>通过标签名读取数据</summary>
-    /// <param name="node">节点对象</param>
-    /// <param name="tag">标签名</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>读取结果</returns>
+    /// <summary>태그 이름으로 데이터 읽기</summary>
+    /// <param name="node">노드 객체</param>
+    /// <param name="tag">태그 이름</param>
+    /// <param name="cancellationToken">취소 토큰</param>
+    /// <returns>읽기 결과</returns>
     public async Task<ReadResult> ReadTagAsync(INode node, String tag, CancellationToken cancellationToken = default)
     {
         if (!TagMap.TryGetValue(tag, out var address))
@@ -404,11 +404,11 @@ public class MCDriver : DriverBase
         return await ReadAsync(node, [point], cancellationToken);
     }
 
-    /// <summary>通过标签名写入数据</summary>
-    /// <param name="node">节点对象</param>
-    /// <param name="tag">标签名</param>
-    /// <param name="value">值</param>
-    /// <param name="cancellationToken">取消令牌</param>
+    /// <summary>태그 이름으로 데이터 쓰기</summary>
+    /// <param name="node">노드 객체</param>
+    /// <param name="tag">태그 이름</param>
+    /// <param name="value">값</param>
+    /// <param name="cancellationToken">취소 토큰</param>
     public async Task WriteTagAsync(INode node, String tag, Object value, CancellationToken cancellationToken = default)
     {
         if (!TagMap.TryGetValue(tag, out var address))

@@ -1,68 +1,68 @@
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>MC协议1E帧请求消息（A 系列兼容）</summary>
+/// <summary>MC 프로토콜 1E 프레임 요청 메시지 (A 시리즈 호환)</summary>
 /// <remarks>
-/// 1E 帧格式（Little-Endian）：
-/// [0]    副头       1    0x00=字读，0x01=位读，0x02=字写，0x03=位写
-/// [1]    PLC号      1    通常 0xFF
-/// [2~3]  监视定时器 2    LE
-/// [4~5]  起始地址   2    LE（1E 帧地址为 16 位）
-/// [6]    软元件代码 1    见 MC1EDeviceCode 枚举（A 系列兼容）
-/// [7~8]  点数       2    LE
-/// [9~]   写入数据   N    仅写命令携带，格式同 3E（字写：每字 2 字节 LE；位写：每字节 2 点）
+/// 1E 프레임 형식 (Little-Endian):
+/// [0]    서브헤드      1    0x00=워드 읽기, 0x01=비트 읽기, 0x02=워드 쓰기, 0x03=비트 쓰기
+/// [1]    PLC 번호      1    보통 0xFF
+/// [2~3]  모니터링 타이머 2    LE
+/// [4~5]  시작 주소     2    LE (1E 프레임 주소는 16비트)
+/// [6]    소프트 요소 코드 1    MC1EDeviceCode enum 참조 (A 시리즈 호환)
+/// [7~8]  포인트 수     2    LE
+/// [9~]   쓰기 데이터   N    쓰기 명령에만 포함, 3E와 동일한 형식 (워드 쓰기: 워드당 2바이트 LE; 비트 쓰기: 바이트당 2포인트)
 /// </remarks>
 public class MC1EMessage
 {
-    #region 常量
+    #region 상수
 
-    /// <summary>字软元件读取副头</summary>
+    /// <summary>워드 소프트 요소 읽기 서브헤드</summary>
     public const Byte SUB_READ_WORD = 0x00;
 
-    /// <summary>位软元件读取副头</summary>
+    /// <summary>비트 소프트 요소 읽기 서브헤드</summary>
     public const Byte SUB_READ_BIT = 0x01;
 
-    /// <summary>字软元件写入副头</summary>
+    /// <summary>워드 소프트 요소 쓰기 서브헤드</summary>
     public const Byte SUB_WRITE_WORD = 0x02;
 
-    /// <summary>位软元件写入副头</summary>
+    /// <summary>비트 소프트 요소 쓰기 서브헤드</summary>
     public const Byte SUB_WRITE_BIT = 0x03;
 
-    /// <summary>PLC 号默认值</summary>
+    /// <summary>PLC 번호 기본값</summary>
     public const Byte DEFAULT_PC_NO = 0xFF;
 
-    /// <summary>1E 帧请求固定头长度（副头+PLC号+监视定时器+起始地址+软元件代码+点数 = 9 字节）</summary>
+    /// <summary>1E 프레임 요청 고정 헤더 길이 (서브헤드 + PLC 번호 + 모니터링 타이머 + 시작 주소 + 소프트 요소 코드 + 포인트 수 = 9바이트)</summary>
     public const Int32 FIXED_HEADER_LEN = 9;
 
     #endregion
 
-    #region 属性
+    #region 속성
 
-    /// <summary>副头。指示读写操作和字/位模式</summary>
+    /// <summary>서브헤드. 읽기/쓰기 작업 및 워드/비트 모드 표시</summary>
     public Byte SubHeader { get; set; }
 
-    /// <summary>PLC号。通常 0xFF</summary>
+    /// <summary>PLC 번호. 보통 0xFF</summary>
     public Byte PCNo { get; set; } = DEFAULT_PC_NO;
 
-    /// <summary>监视定时器。单位 250ms，默认 10（= 2500ms）</summary>
+    /// <summary>모니터링 타이머. 단위 250ms, 기본 10 (= 2500ms)</summary>
     public UInt16 MonitoringTimer { get; set; } = 0x000A;
 
-    /// <summary>起始地址（16 位）。1E 帧地址最大 0xFFFF</summary>
+    /// <summary>시작 주소 (16비트). 1E 프레임 주소 최대 0xFFFF</summary>
     public UInt16 StartAddress { get; set; }
 
-    /// <summary>软元件代码（A 系列兼容）</summary>
+    /// <summary>소프트 요소 코드 (A 시리즈 호환)</summary>
     public MC1EDeviceCode DeviceCode { get; set; }
 
-    /// <summary>软元件点数</summary>
+    /// <summary>소프트 요소 포인트 수</summary>
     public UInt16 Count { get; set; }
 
-    /// <summary>写入数据（仅写命令携带）。位写时每个元素 0=OFF 1=ON；字写时为字值</summary>
+    /// <summary>쓰기 데이터 (쓰기 명령에만 포함). 비트 쓰기는 각 요소 0=OFF 1=ON, 워드 쓰기는 워드 값</summary>
     public UInt16[] WriteData { get; set; }
 
     #endregion
 
-    #region 构造
+    #region 생성
 
-    /// <summary>已重载。友好字符串</summary>
+    /// <summary>오버라이드. 친화적인 문자열</summary>
     public override String ToString()
     {
         var op = SubHeader switch
@@ -78,14 +78,14 @@ public class MC1EMessage
 
     #endregion
 
-    #region 序列化
+    #region 직렬화
 
-    /// <summary>序列化为字节数组</summary>
+    /// <summary>바이트 배열로 직렬화</summary>
     public Byte[] ToBytes()
     {
         var dataLength = FIXED_HEADER_LEN;
 
-        // 打包写入数据
+        // 쓰기 데이터 패킹
         Byte[] writeBytes = null;
         if (WriteData != null && WriteData.Length > 0)
         {
@@ -115,9 +115,9 @@ public class MC1EMessage
         return buffer;
     }
 
-    /// <summary>从字节数组反序列化</summary>
-    /// <param name="data">帧数据</param>
-    /// <returns>是否成功</returns>
+    /// <summary>바이트 배열에서 역직렬화</summary>
+    /// <param name="data">프레임 데이터</param>
+    /// <returns>성공 여부</returns>
     public Boolean Read(Byte[] data)
     {
         if (data == null || data.Length < FIXED_HEADER_LEN) return false;
@@ -130,7 +130,7 @@ public class MC1EMessage
         DeviceCode = (MC1EDeviceCode)data[offset++];
         Count = ReadUInt16LE(data, ref offset);
 
-        // 写入数据
+        // 쓰기 데이터
         var extraLen = data.Length - FIXED_HEADER_LEN;
         if (extraLen > 0)
         {
@@ -142,17 +142,17 @@ public class MC1EMessage
         return true;
     }
 
-    /// <summary>创建对应的 1E 响应对象</summary>
+    /// <summary>해당 1E 응답 객체 생성</summary>
     public MC1EResponse CreateReply() => new();
 
     #endregion
 
-    #region 工厂方法
+    #region 팩토리 메서드
 
-    /// <summary>构造字软元件批量读取请求</summary>
-    /// <param name="devCode">软元件代码</param>
-    /// <param name="startAddr">起始地址</param>
-    /// <param name="count">点数</param>
+    /// <summary>워드 소프트 요소 일괄 읽기 요청 생성</summary>
+    /// <param name="devCode">소프트 요소 코드</param>
+    /// <param name="startAddr">시작 주소</param>
+    /// <param name="count">포인트 수</param>
     public static MC1EMessage BuildReadWord(MC1EDeviceCode devCode, UInt16 startAddr, Int32 count) => new()
     {
         SubHeader = SUB_READ_WORD,
@@ -161,7 +161,7 @@ public class MC1EMessage
         Count = (UInt16)count,
     };
 
-    /// <summary>构造位软元件批量读取请求</summary>
+    /// <summary>비트 소프트 요소 일괄 읽기 요청 생성</summary>
     public static MC1EMessage BuildReadBit(MC1EDeviceCode devCode, UInt16 startAddr, Int32 count) => new()
     {
         SubHeader = SUB_READ_BIT,
@@ -170,7 +170,7 @@ public class MC1EMessage
         Count = (UInt16)count,
     };
 
-    /// <summary>构造字软元件批量写入请求</summary>
+    /// <summary>워드 소프트 요소 일괄 쓰기 요청 생성</summary>
     public static MC1EMessage BuildWriteWord(MC1EDeviceCode devCode, UInt16 startAddr, UInt16[] values) => new()
     {
         SubHeader = SUB_WRITE_WORD,
@@ -180,7 +180,7 @@ public class MC1EMessage
         WriteData = values,
     };
 
-    /// <summary>构造位软元件批量写入请求</summary>
+    /// <summary>비트 소프트 요소 일괄 쓰기 요청 생성</summary>
     public static MC1EMessage BuildWriteBit(MC1EDeviceCode devCode, UInt16 startAddr, UInt16[] values) => new()
     {
         SubHeader = SUB_WRITE_BIT,
@@ -192,7 +192,7 @@ public class MC1EMessage
 
     #endregion
 
-    #region 辅助
+    #region 헬퍼
 
     private static UInt16[] UnpackWriteData(Byte[] buf, UInt16 count, Byte subHeader)
     {

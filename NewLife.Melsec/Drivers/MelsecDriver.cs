@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.IO.Ports;
 using HslCommunication.Core;
 using HslCommunication.Profinet.Melsec;
@@ -11,7 +11,7 @@ using NewLife.Serialization;
 namespace NewLife.Melsec.Drivers;
 
 /// <summary>
-/// 三菱PLC驱动
+/// 미쓰비시 PLC 드라이버
 /// </summary>
 [Driver("MelsecPLC")]
 [DisplayName("三菱PLC")]
@@ -20,12 +20,12 @@ public class MelsecDriver : DriverBase
     private IReadWriteNet _plcNet;
 
     /// <summary>
-    /// 打开通道数量
+    /// 오픈된 채널 수
     /// </summary>
     private Int32 _nodes;
 
     /// <summary>
-    /// 创建驱动参数对象，可序列化成Xml/Json作为该协议的参数模板
+    /// 드라이버 매개변수 객체 생성. 해당 프로토콜의 매개변수 템플릿으로 Xml/Json 직렬화 가능
     /// </summary>
     /// <returns></returns>
     public override IDriverParameter GetDefaultParameter() => new MelsecParameter
@@ -36,7 +36,7 @@ public class MelsecDriver : DriverBase
     };
 
     /// <summary>
-    /// 从点位中解析地址
+    /// 포인트에서 주소 파싱
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
@@ -44,7 +44,7 @@ public class MelsecDriver : DriverBase
     {
         if (point == null) throw new ArgumentException("点位信息不能为空！");
 
-        // 去掉冒号后面的位域
+        // 콜론 이후의 비트 필드 제거
         var addr = point.Address;
         var p = addr.IndexOf(':');
         if (p > 0) addr = addr.Substring(0, p);
@@ -53,10 +53,10 @@ public class MelsecDriver : DriverBase
     }
 
     /// <summary>
-    /// 打开通道。一个ModbusTcp设备可能分为多个通道读取，需要共用Tcp连接，以不同节点区分
+    /// 채널 오픈. 하나의 ModbusTcp 기기는 여러 채널로 분리되어 읽을 수 있으므로, Tcp 연결을 공유하고 서로 다른 노드로 구분해야 함
     /// </summary>
-    /// <param name="device">通道</param>
-    /// <param name="parameters">参数</param>
+    /// <param name="device">채널</param>
+    /// <param name="parameters">매개변수</param>
     /// <returns></returns>
     public override INode Open(IDevice device, IDictionary<String, Object> parameters)
     {
@@ -174,7 +174,7 @@ public class MelsecDriver : DriverBase
     }
 
     /// <summary>
-    /// 关闭设备驱动
+    /// 기기 드라이버 닫기
     /// </summary>
     /// <param name="node"></param>
     public override void Close(INode node)
@@ -188,10 +188,10 @@ public class MelsecDriver : DriverBase
     }
 
     /// <summary>
-    /// 读取数据
+    /// 데이터 읽기
     /// </summary>
-    /// <param name="node">节点对象，可存储站号等信息，仅驱动自己识别</param>
-    /// <param name="points">点位集合，Address属性地址示例：D100、C100、W100、H100</param>
+    /// <param name="node">노드 객체. 스테이션 번호 등의 정보를 저장할 수 있으며, 드라이버에서만 인식</param>
+    /// <param name="points">포인트 집합. Address 속성 주소 예: D100, C100, W100, H100</param>
     /// <returns></returns>
     public override IDictionary<String, Object> Read(INode node, IPoint[] points)
     {
@@ -222,11 +222,11 @@ public class MelsecDriver : DriverBase
     }
 
     /// <summary>
-    /// 写入数据
+    /// 데이터 쓰기
     /// </summary>
-    /// <param name="node">节点对象，可存储站号等信息，仅驱动自己识别</param>
-    /// <param name="point">点位，Address属性地址示例：D100、C100、W100、H100</param>
-    /// <param name="value">数据</param>
+    /// <param name="node">노드 객체. 스테이션 번호 등의 정보를 저장할 수 있으며, 드라이버에서만 인식</param>
+    /// <param name="point">포인트. Address 속성 주소 예: D100, C100, W100, H100</param>
+    /// <param name="value">데이터</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     public override Object Write(INode node, IPoint point, Object value)
@@ -243,4 +243,3 @@ public class MelsecDriver : DriverBase
         };
         return res;
     }
-}

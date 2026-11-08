@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -14,16 +14,16 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MC协议端到端集成测试（内嵌模拟 TCP 服务端）</summary>
+/// <summary>MC 프로토콜 엔드투엔드 통합 테스트 (내장 목 TCP 서버)</summary>
 public class MCIntegrationTests : IDisposable
 {
-    #region 模拟 TCP 服务端
+    #region 목 TCP 서버
 
     private readonly TcpListener _listener;
     private readonly Int32 _port;
     private readonly CancellationTokenSource _cts = new();
 
-    /// <summary>每次收到请求后调用的处理函数，返回响应字节</summary>
+    /// <summary>요청을 받을 때마다 호출되는 처리 함수. 응답 바이트를 반환</summary>
     private Func<Byte[], Byte[]> _handler;
 
     public MCIntegrationTests()
@@ -34,7 +34,7 @@ public class MCIntegrationTests : IDisposable
         StartAcceptLoop();
     }
 
-    /// <summary>设置本次请求的响应处理器</summary>
+    /// <summary>이번 요청의 응답 핸들러 설정</summary>
     private void SetHandler(Func<Byte[], Byte[]> handler) => _handler = handler;
 
     private void StartAcceptLoop()
@@ -67,12 +67,12 @@ public class MCIntegrationTests : IDisposable
             {
                 while (client.Connected)
                 {
-                    // 读请求帧头 9 字节
+                    // 요청 프레임 헤더 9바이트 읽기
                     var header = ReadFully(ns, MCResponse.FIXED_HEADER_LEN);
                     if (header == null) break;
 
-                    // 从字节 7~8 读数据长度（实际是请求帧 DataLength）
-                    // 请求帧格式 [7~8] = DataLength（监视定时器(2)+命令(2)+子命令(2)+地址(3)+代码(1)+点数(2) = 12 + 写数据）
+                    // 바이트 7~8에서 데이터 길이 읽기 (실제로는 요청 프레임의 DataLength)
+                    // 요청 프레임 형식 [7~8] = DataLength (모니터링 타이머(2)+명령(2)+서브명령(2)+주소(3)+코드(1)+포인트 수(2) = 12 + 쓰기 데이터)
                     var dataLength = header[7] | (header[8] << 8);
                     var data = ReadFully(ns, dataLength);
                     if (data == null) break;
@@ -93,7 +93,7 @@ public class MCIntegrationTests : IDisposable
             }
             catch
             {
-                // 连接断开，正常退出
+                // 연결이 끊어졌으므로 정상 종료
             }
         }
     }
@@ -119,7 +119,7 @@ public class MCIntegrationTests : IDisposable
 
     #endregion
 
-    #region MCProtocol 集成测试
+    #region MCProtocol 통합 테스트
 
     [Fact]
     [DisplayName("ReadWords D100×4 完整请求响应流程")]
@@ -129,11 +129,11 @@ public class MCIntegrationTests : IDisposable
 
         SetHandler(request =>
         {
-            // 验证请求帧格式
+            // 요청 프레임 형식 검증
             Assert.Equal(0x50, request[0]);
             Assert.Equal(0x00, request[1]);
 
-            // 返回 4 个字的响应
+            // 4개의 워드 응답 반환
             return MCResponse.BuildWordResponse(expectedValues).ToBytes();
         });
 
@@ -178,8 +178,8 @@ public class MCIntegrationTests : IDisposable
 
         SetHandler(request =>
         {
-            // 验证是写命令
-            // 帧结构: header(9) + MonTimer(2) + Cmd(2) + SubCmd(2) + ...
+            // 쓰기 명령인지 검증
+            // 프레임 구조: header(9) + MonTimer(2) + Cmd(2) + SubCmd(2) + ...
             // offset 9 = MonTimer, 11 = Cmd low byte
             var cmdLow = request[11];
             var cmdHigh = request[12];
@@ -192,7 +192,7 @@ public class MCIntegrationTests : IDisposable
         using var protocol = new MCProtocol { Address = $"127.0.0.1:{_port}", Timeout = 3000 };
         protocol.Open();
 
-        // 不抛出异常即通过
+        // 예외가 발생하지 않으면 통과
         protocol.WriteWords(DeviceCode.D, 100, valuesToWrite);
     }
 
@@ -242,15 +242,15 @@ public class MCIntegrationTests : IDisposable
         using var protocol = new MCProtocol { Address = $"127.0.0.1:{_port}", Timeout = 3000 };
         protocol.Open();
 
-        // 第一次读取
+        // 첫 번째 읽기
         var words1 = protocol.ReadWords(DeviceCode.D, 0, 1);
         Assert.Equal((UInt16)0x0001, words1[0]);
 
-        // 手动关闭连接模拟断线
+        // 연결을 수동으로 닫아 통신 두절 시뮬레이션
         protocol.Close();
         Assert.Equal(1, callCount);
 
-        // 重新打开（模拟重连）
+        // 다시 열기 (재연결 시뮬레이션)
         protocol.Open();
 
         var words2 = protocol.ReadWords(DeviceCode.D, 0, 1);
@@ -260,7 +260,7 @@ public class MCIntegrationTests : IDisposable
 
     #endregion
 
-    #region MCDriver E2E 测试
+    #region MCDriver E2E 테스트
 
     [Fact]
     [DisplayName("MCDriver Read 通过真实 TCP 连接读取字软元件")]
@@ -314,12 +314,12 @@ public class MCIntegrationTests : IDisposable
     [DisplayName("MCDriver 先读字D段再读位M段 两次请求均成功")]
     public void MCDriver_Read_MixedWordAndBit_EndToEnd()
     {
-        // 服务端按请求次序返回不同响应：第1次返回D段字数据，第2次返回M段位数据
+        // 서버가 요청 순서에 따라 다른 응답을 반환: 1회차에는 D 세그먼트 워드 데이터, 2회차에는 M 세그먼트 비트 데이터
         var callCount = 0;
         SetHandler(request =>
         {
             callCount++;
-            // 判断子命令区分字/位请求 (offset 13 = SubCmd low byte)
+            // 서브명령으로 워드/비트 요청 구분 (offset 13 = SubCmd 하위 바이트)
             var subCmd = request[13] | (request[14] << 8);
             if (subCmd == MCMessage.SUBCMD_WORD)
                 return MCResponse.BuildWordResponse([0xAAAA, 0xBBBB]).ToBytes();

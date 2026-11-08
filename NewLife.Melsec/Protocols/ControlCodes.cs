@@ -1,23 +1,23 @@
-﻿namespace NewLife.Melsec.Protocols;
+namespace NewLife.Melsec.Protocols;
 
-/// <summary>控制码</summary>
+/// <summary>제어 코드</summary>
 public enum ControlCodes : Byte
 {
-    /// <summary>询问。发出请求</summary>
+    /// <summary>문의(ENQ). 요청 전송</summary>
     ENQ = 05,
 
-    /// <summary>文本起点。读取操作的响应开始</summary>
+    /// <summary>텍스트 시작(STX). 읽기 작업 응답의 시작</summary>
     STX = 02,
 
-    /// <summary>文本终点。读取操作的响应结束</summary>
+    /// <summary>텍스트 종료(ETX). 읽기 작업 응답의 끝</summary>
     ETX = 03,
 
-    /// <summary>传送结束</summary>
+    /// <summary>전송 종료</summary>
     EOT = 04,
 
-    /// <summary>确认。写入操作的响应</summary>
+    /// <summary>확인(ACK). 쓰기 작업 응답</summary>
     ACK = 06,
 
-    /// <summary>不确认</summary>
+    /// <summary>미확인(NAK)</summary>
     NAK = 0x15,
 }

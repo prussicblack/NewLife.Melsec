@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Moq;
 using NewLife;
 using NewLife.Melsec.Protocols;
@@ -11,7 +11,7 @@ public class FxLinksTests
     [Fact]
     public void Read()
     {
-        // 模拟FxLinks。CallBase 指定调用基类方法
+        // FxLinks를 목 처리. CallBase로 기저 클래스 메서드 호출 지정
         var mockFxLinks = new Mock<FxLinks> { CallBase = true };
         mockFxLinks.Setup(e => e.SendCommand(It.IsAny<FxLinksMessage>()))
             .Returns<FxLinksMessage>(e => new FxLinksResponse
@@ -25,7 +25,7 @@ public class FxLinksTests
 
         Assert.Throws<NotSupportedException>(() => link.Read("BT", 1, "D202", 1));
 
-        // 读取
+        // 읽기
         var rs = link.Read("BR", 1, "D202", 1) as Byte[];
         Assert.NotNull(rs);
         Assert.Equal(1, rs[0]);
@@ -42,7 +42,7 @@ public class FxLinksTests
     [Fact]
     public void ReadBit()
     {
-        // 模拟FxLinks
+        // FxLinks를 목 처리
         var mockFxLinks = new Mock<FxLinks> { CallBase = true };
         mockFxLinks.Setup(e => e.SendCommand(It.IsAny<FxLinksMessage>()))
             .Returns<FxLinksMessage>(e => new FxLinksResponse
@@ -52,7 +52,7 @@ public class FxLinksTests
 
         var link = mockFxLinks.Object;
 
-        // 读取
+        // 읽기
         var rs = link.ReadBit(1, "D01", 16);
         Assert.NotNull(rs);
 
@@ -66,7 +66,7 @@ public class FxLinksTests
     [Fact]
     public void ReadWord()
     {
-        // 模拟FxLinks
+        // FxLinks를 목 처리
         var mockFxLinks = new Mock<FxLinks> { CallBase = true };
         mockFxLinks.Setup(e => e.SendCommand(It.IsAny<FxLinksMessage>()))
             .Returns<FxLinksMessage>(e => new FxLinksResponse
@@ -76,7 +76,7 @@ public class FxLinksTests
 
         var link = mockFxLinks.Object;
 
-        // 读取
+        // 읽기
         var rs = link.ReadWord(1, "D202", 2);
         Assert.NotNull(rs);
 
@@ -88,7 +88,7 @@ public class FxLinksTests
     [Fact]
     public void Write()
     {
-        // 模拟FxLinks。CallBase 指定调用基类方法
+        // FxLinks를 목 처리. CallBase로 기저 클래스 메서드 호출 지정
         var mb = new Mock<FxLinks>() { CallBase = true };
         mb.Setup(e => e.SendCommand(It.IsAny<FxLinksMessage>()))
             .Returns<FxLinksMessage>(e => new FxLinksResponse
@@ -110,7 +110,7 @@ public class FxLinksTests
     [Fact]
     public void WriteBit()
     {
-        // 模拟FxLinks
+        // FxLinks를 목 처리
         var mb = new Mock<FxLinks>() { CallBase = true };
         mb.Setup(e => e.SendCommand(It.IsAny<FxLinksMessage>()))
             .Returns<FxLinksMessage>(e => new FxLinksResponse
@@ -120,7 +120,7 @@ public class FxLinksTests
 
         var link = mb.Object;
 
-        // 读取
+        // 읽기
         var rs = link.WriteBit(1, "D202", 0xFF00);
         Assert.Equal(1, rs);
     }
@@ -128,7 +128,7 @@ public class FxLinksTests
     [Fact]
     public void WriteWord()
     {
-        // 模拟FxLinks
+        // FxLinks를 목 처리
         var mb = new Mock<FxLinks>() { CallBase = true };
         mb.Setup(e => e.SendCommand(It.IsAny<FxLinksMessage>()))
             .Returns<FxLinksMessage>(e => new FxLinksResponse
@@ -138,7 +138,7 @@ public class FxLinksTests
 
         var link = mb.Object;
 
-        // 读取
+        // 읽기
         var rs = link.WriteWord(1, "D202", 0x1234);
         Assert.Equal(1, rs);
     }

@@ -1,25 +1,25 @@
-﻿namespace NewLife.IoT.Drivers;
+namespace NewLife.IoT.Drivers;
 
 /// <summary>
-/// 节点
+/// 노드
 /// </summary>
 public class MelsecNode : INode
 {
-    /// <summary>主机地址</summary>
+    /// <summary>호스트 주소</summary>
     public String Address { get; set; }
 
-    /// <summary>站号</summary>
+    /// <summary>스테이션 번호</summary>
     public Byte Host { get;set; }
 
-    /// <summary>通道</summary>
+    /// <summary>채널</summary>
     public IDriver Driver { get; set; }
 
-    /// <summary>设备</summary>
+    /// <summary>기기</summary>
     public IDevice Device { get; set; }
 
-    /// <summary>参数</summary>
+    /// <summary>매개변수</summary>
     public IDriverParameter Parameter { get; set; }
 
-    /// <summary>是否已连接</summary>
+    /// <summary>연결 상태</summary>
     public Boolean IsConnected => true;
 }

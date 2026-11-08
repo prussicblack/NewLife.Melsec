@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using NewLife.IoT;
 using NewLife.IoT.Drivers;
@@ -12,22 +12,22 @@ using NewLife.Serialization;
 namespace NewLife.Melsec.Drivers;
 
 /// <summary>
-/// 三菱PLC驱动
+/// 미쓰비시 PLC 드라이버
 /// </summary>
 [Driver("MelsecFxLinks")]
 [DisplayName("三菱FxLinks")]
 public class FxLinksDriver : DriverBase
 {
-    /// <summary>链接</summary>
+    /// <summary>링크</summary>
     public FxLinks Link { get; set; }
 
     /// <summary>
-    /// 打开通道数量
+    /// 오픈된 채널 수
     /// </summary>
     private Int32 _nodes;
 
     /// <summary>
-    /// 创建驱动参数对象，可序列化成Xml/Json作为该协议的参数模板
+    /// 드라이버 매개변수 객체 생성. 해당 프로토콜의 매개변수 템플릿으로 Xml/Json 직렬화 가능
     /// </summary>
     /// <returns></returns>
     protected override IDriverParameter OnCreateParameter() => new FxLinksParameter
@@ -38,7 +38,7 @@ public class FxLinksDriver : DriverBase
     };
 
     /// <summary>
-    /// 从点位中解析地址
+    /// 포인트에서 주소 파싱
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
@@ -46,7 +46,7 @@ public class FxLinksDriver : DriverBase
     {
         if (point == null) throw new ArgumentException("点位信息不能为空！");
 
-        // 去掉冒号后面的位域
+        // 콜론 이후의 비트 필드 제거
         var addr = point.Address;
         var p = addr.IndexOf(':');
         if (p > 0) addr = addr[..p];
@@ -55,11 +55,11 @@ public class FxLinksDriver : DriverBase
     }
 
     /// <summary>
-    /// 打开通道。一个ModbusTcp设备可能分为多个通道读取，需要共用Tcp连接，以不同节点区分
+    /// 채널 오픈. 하나의 ModbusTcp 기기는 여러 채널로 분리되어 읽을 수 있으므로, Tcp 연결을 공유하고 서로 다른 노드로 구분해야 함
     /// </summary>
-    /// <param name="device">通道</param>
-    /// <param name="parameter">参数</param>
-    /// <param name="cancellationToken">取消令牌</param>
+    /// <param name="device">채널</param>
+    /// <param name="parameter">매개변수</param>
+    /// <param name="cancellationToken">취소 토큰</param>
     /// <returns></returns>
     public override Task<INode> OpenAsync(IDevice device, IDriverParameter? parameter, CancellationToken cancellationToken = default)
     {
@@ -80,7 +80,7 @@ public class FxLinksDriver : DriverBase
             Parameter = p,
         };
 
-        // 实例化
+        // 인스턴스화
         if (Link == null)
         {
             lock (this)
@@ -103,7 +103,7 @@ public class FxLinksDriver : DriverBase
 
                     //if (Log != null && Log.Level <= LogLevel.Debug) link.Log = Log;
 
-                    // 外部已指定通道时，打开连接
+                    // 외부에서 채널이 지정된 경우 연결 오픈
                     if (device != null) link.Open();
 
                     Link = link;
@@ -117,10 +117,10 @@ public class FxLinksDriver : DriverBase
     }
 
     /// <summary>
-    /// 关闭设备驱动
+    /// 기기 드라이버 닫기
     /// </summary>
     /// <param name="node"></param>
-    /// <param name="cancellationToken">取消令牌</param>
+    /// <param name="cancellationToken">취소 토큰</param>
     public override Task CloseAsync(INode node, CancellationToken cancellationToken = default)
     {
         if (Interlocked.Decrement(ref _nodes) <= 0)
@@ -132,11 +132,11 @@ public class FxLinksDriver : DriverBase
     }
 
     /// <summary>
-    /// 读取数据
+    /// 데이터 읽기
     /// </summary>
-    /// <param name="node">节点对象，可存储站号等信息，仅驱动自己识别</param>
-    /// <param name="points">点位集合，Address属性地址示例：D100、C100、W100、H100</param>
-    /// <param name="cancellationToken">取消令牌</param>
+    /// <param name="node">노드 객체. 스테이션 번호 등의 정보를 저장할 수 있으며, 드라이버에서만 인식</param>
+    /// <param name="points">포인트 집합. Address 속성 주소 예: D100, C100, W100, H100</param>
+    /// <param name="cancellationToken">취소 토큰</param>
     /// <returns></returns>
     public override Task<ReadResult> ReadAsync(INode node, IPoint[] points, CancellationToken cancellationToken = default)
     {
@@ -146,21 +146,21 @@ public class FxLinksDriver : DriverBase
         var n = node as MelsecNode;
         var p = node.Parameter as FxLinksParameter;
 
-        // 组合多个片段，减少读取次数
+        // 여러 조각을 조합하여 읽기 횟수 감소
         var list = BuildSegments(points, p);
 
-        // 加锁，避免冲突
+        // 잠금으로 충돌 방지
         lock (Link)
         {
-            // 分段整体读取
+            // 세그먼트별 전체 읽기
             for (var i = 0; i < list.Count; i++)
             {
                 var seg = list[i];
 
-                // 其中一项读取报错时，直接跳过，不要影响其它批次
+                // 항목 중 하나에서 읽기 오류가 발생하면 그냥 건너뛰고 다른 벌크에 영향을 주지 않도록 함
                 try
                 {
-                    // 根据点位地址类型，使用不同操作，尽管字读取也可以用来读取位存储区，但很容易混淆，并且不好解析，因此不支持
+                    // 포인트 주소 타입에 따라 다른 조작을 사용. 워드 읽기로 비트 저장 영역을 읽을 수도 있지만 혼동을 유발하기 쉽고 해독이 어려워서 지원하지 않음
                     if (seg.Code.EqualIgnoreCase("X", "Y", "M"))
                         seg.Bits = Link.ReadBit(n.Host, seg.Code + seg.Address, (Byte)seg.Count);
                     else if (seg.Code.EqualIgnoreCase("D"))
@@ -173,12 +173,12 @@ public class FxLinksDriver : DriverBase
                     Log?.Error(ex.ToString());
                 }
 
-                // 读取时延迟一点时间
+                // 읽기 시 약간 지연
                 if (i < list.Count - 1 && p.BatchDelay > 0) Thread.Sleep(p.BatchDelay);
             }
         }
 
-        // 分割数据
+        // 데이터 분할
         var dic = Dispatch(points, list);
 
         var resultPoints = new IPoint[dic.Count];
@@ -202,7 +202,7 @@ public class FxLinksDriver : DriverBase
 
     internal IList<Segment> BuildSegments(IList<IPoint> points, FxLinksParameter p)
     {
-        // 组合多个片段，减少读取次数
+        // 여러 조각을 조합하여 읽기 횟수 감소
         var list = new List<Segment>();
         foreach (var point in points)
         {
@@ -227,24 +227,24 @@ public class FxLinksDriver : DriverBase
         {
             var cur = list[i];
 
-            // 前一段末尾碰到了当前段开始，可以合并
+            // 이전 세그먼트의 끝이 현재 세그먼트의 시작에 닿으면 병합 가능
             var flag = prv.Address + prv.Count + step > cur.Address;
-            //// 如果是读取位存储区，间隔小于8都可以合并
+            //// 비트 저장 영역을 읽는 경우, 간격이 8 미만이면 모두 병합 가능
             //if (!flag && cur.Code.EqualIgnoreCase("X", "Y", "M"))
             //{
             //    flag = prv.Address + prv.Count + 8 > cur.Address;
             //}
 
-            // 前一段末尾碰到了当前段开始，可以合并
+            // 이전 세그먼트의 끝이 현재 세그먼트의 시작에 닿으면 병합 가능
             if (flag && prv.Code == cur.Code)
             {
                 if (p.BatchSize <= 0 || k < p.BatchSize)
                 {
-                    // 要注意，可能前后重叠，也可能前面区域比后面还大
+                    // 주의: 앞뒤가 겹칠 수도 있고, 앞 영역이 뒤보다 클 수도 있음
                     var size = cur.Address + cur.Count - prv.Address;
                     if (size > prv.Count) prv.Count = size;
 
-                    // 连续合并数累加
+                    // 연속 병합 수 누적
                     k++;
                 }
                 else
@@ -277,27 +277,27 @@ public class FxLinksDriver : DriverBase
             var cmd = point.Address[..1];
             var addr = point.Address[1..].ToInt();
 
-            // 找到片段
+            // 조각 찾기
             var seg = segments.FirstOrDefault(e => e.Code == cmd && e.Address <= addr && addr < e.Address + e.Count);
             if (seg != null)
             {
                 var code = seg.Code;
                 if (seg.Values != null)
                 {
-                    // 校验数据完整性
+                    // 데이터 완전성 검증
                     var offset = addr - seg.Address;
                     if (seg.Values.Length > offset)
                         dic[point.Name] = seg.Values[offset];
                 }
                 else if (seg.Bits != null)
                 {
-                    // 校验数据完整性
+                    // 데이터 완전성 검증
                     var offset = addr - seg.Address;
                     if (seg.Bits.Length > offset)
                         dic[point.Name] = seg.Bits[offset];
                 }
                 //else
-                //    throw new NotSupportedException($"无法拆分{code}");
+                //    throw new NotSupportedException($"{code} 분할 불가");
             }
         }
         return dic;
@@ -314,11 +314,11 @@ public class FxLinksDriver : DriverBase
     }
 
     /// <summary>
-    /// 写入数据
+    /// 데이터 쓰기
     /// </summary>
-    /// <param name="node">节点对象，可存储站号等信息，仅驱动自己识别</param>
-    /// <param name="requests">写入请求数组，每项含目标点位和值</param>
-    /// <param name="cancellationToken">取消令牌</param>
+    /// <param name="node">노드 객체. 스테이션 번호 등의 정보를 저장할 수 있으며, 드라이버에서만 인식</param>
+    /// <param name="requests">쓰기 요청 배열, 각 항목에 대상 포인트와 값 포함</param>
+    /// <param name="cancellationToken">취소 토큰</param>
     /// <returns></returns>
     public override Task<WriteResult> WriteAsync(INode node, WriteRequest[] requests, CancellationToken cancellationToken = default)
     {
@@ -351,10 +351,10 @@ public class FxLinksDriver : DriverBase
                 if (vs == null) throw new NotSupportedException($"点位[{point.Name}]不支持数据[{value}]");
             }
 
-            // 加锁，避免冲突
+            // 잠금으로 충돌 방지
             lock (Link)
             {
-                // 按照点位地址前缀决定使用哪一种写入方法，要求物模型必须配置对点位
+                // 포인트 주소 접두사에 따라 어떤 쓰기 메서드를 사용할지 결정. 사물 모델에서 포인트가 올바르게 구성되어야 함
                 if (point.Address.StartsWithIgnoreCase("X", "Y", "M"))
                     Link.WriteBit(n.Host, point.Address, vs);
                 else if (point.Address.StartsWithIgnoreCase("D"))
@@ -369,7 +369,7 @@ public class FxLinksDriver : DriverBase
         return TaskEx.FromResult(WriteResult.SuccessBatch(successCount));
     }
 
-    /// <summary>原始数据转为线圈</summary>
+    /// <summary>원시 데이터를 코일로 변환</summary>
     /// <param name="data"></param>
     /// <param name="point"></param>
     /// <param name="spec"></param>
@@ -379,7 +379,7 @@ public class FxLinksDriver : DriverBase
         var type = TypeHelper.GetNetType(point);
         if (type == null)
         {
-            // 找到物属性定义
+            // 사물 속성 정의 찾기
             var pi = spec?.Properties?.FirstOrDefault(e => e.Id.EqualIgnoreCase(point.Name));
             type = TypeHelper.GetNetType(pi?.DataType?.Type);
         }
@@ -406,7 +406,7 @@ public class FxLinksDriver : DriverBase
         }
     }
 
-    /// <summary>原始数据转寄存器数组</summary>
+    /// <summary>원시 데이터를 레지스터 배열로 변환</summary>
     /// <param name="data"></param>
     /// <param name="point"></param>
     /// <param name="spec"></param>
@@ -416,7 +416,7 @@ public class FxLinksDriver : DriverBase
         var type = TypeHelper.GetNetType(point);
         if (type == null)
         {
-            // 找到物属性定义
+            // 사물 속성 정의 찾기
             var pi = spec?.Properties?.FirstOrDefault(e => e.Id.EqualIgnoreCase(point.Name));
             type = TypeHelper.GetNetType(pi?.DataType?.Type);
         }

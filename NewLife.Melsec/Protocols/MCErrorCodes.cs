@@ -1,48 +1,48 @@
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>MC协议结束码（EndCode）</summary>
-/// <remarks>结束码 0x0000 表示成功；其余均为错误码。常见错误码定义如下。</remarks>
+/// <summary>MC 프로토콜 종료 코드 (EndCode)</summary>
+/// <remarks>종료 코드 0x0000은 성공을 의미. 나머지는 모두 에러 코드. 일반적인 에러 코드는 다음과 같이 정의된다.</remarks>
 public enum MCEndCode : UInt16
 {
-    /// <summary>正常结束</summary>
+    /// <summary>정상 종료</summary>
     Success = 0x0000,
 
-    /// <summary>PLC 正在运行，不能执行（请求在 RUN 模式下不被允许）</summary>
+    /// <summary>PLC가 실행 중이라 수행할 수 없음 (요청이 RUN 모드에서 허용되지 않음)</summary>
     PlcRunning = 0xC050,
 
-    /// <summary>软元件地址超范围</summary>
+    /// <summary>소프트 요소 주소 범위 초과</summary>
     AddressOutOfRange = 0xC056,
 
-    /// <summary>命令或子命令错误</summary>
+    /// <summary>명령 또는 서브명령 에러</summary>
     CommandError = 0xC059,
 
-    /// <summary>点数超出范围</summary>
+    /// <summary>포인트 수 범위 초과</summary>
     PointCountError = 0xC05B,
 
-    /// <summary>请求数据长度与实际不匹配</summary>
+    /// <summary>요청 데이터 길이가 실제와 불일치</summary>
     DataLengthError = 0xC060,
 
-    /// <summary>CPU 正在处理其他请求</summary>
+    /// <summary>CPU가 다른 요청을 처리 중</summary>
     CpuBusy = 0xC0B5,
 
-    /// <summary>通信超时（路由超时）</summary>
+    /// <summary>통신 타임아웃 (라우팅 타임아웃)</summary>
     Timeout = 0xC100,
 }
 
-/// <summary>MC协议异常</summary>
+/// <summary>MC 프로토콜 예외</summary>
 public class MCException : Exception
 {
-    /// <summary>结束码</summary>
+    /// <summary>종료 코드</summary>
     public UInt16 EndCode { get; set; }
 
-    /// <summary>实例化MC协议异常</summary>
-    /// <param name="endCode">结束码</param>
+    /// <summary>MC 프로토콜 예외 인스턴스 생성</summary>
+    /// <param name="endCode">종료 코드</param>
     public MCException(UInt16 endCode)
         : base(GetMessage(endCode)) => EndCode = endCode;
 
-    /// <summary>实例化MC协议异常</summary>
-    /// <param name="endCode">结束码</param>
-    /// <param name="message">附加描述</param>
+    /// <summary>MC 프로토콜 예외 인스턴스 생성</summary>
+    /// <param name="endCode">종료 코드</param>
+    /// <param name="message">추가 설명</param>
     public MCException(UInt16 endCode, String message)
         : base(message) => EndCode = endCode;
 

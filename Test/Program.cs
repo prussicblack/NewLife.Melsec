@@ -1,4 +1,4 @@
-﻿using NewLife;
+using NewLife;
 using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
 using NewLife.Log;
@@ -9,7 +9,7 @@ using NewLife.Serialization;
 XTrace.UseConsole();
 
 // var ps = SerialTransport.GetPortNames();
-// Console.WriteLine("请选择串口：");
+// Console.WriteLine("시리얼 포트 선택:");
 
 // for (var i = 0; i < ps.Length; i++)
 // {
@@ -31,7 +31,7 @@ XTrace.UseConsole();
 
 // void Pt_Disconnected(Object? sender, EventArgs e)
 // {
-//     Console.WriteLine("断开连接");
+//     Console.WriteLine("연결 끊김");
 //     pt.Disconnected -= Pt_Disconnected;
 //     pt.Received -= Pt_Received;
 //     pt.Close();
@@ -89,7 +89,7 @@ var driver = new FxLinksDriver();
 
 var node = driver.Open(null, pm);
 
-// 测试打开两个通道
+// 두 개 채널 오픈 테스트
 node = driver.Open(null, pm);
 
 if (mode == "1") Console.WriteLine($"连接成功=>{pm.Address}！");
@@ -110,29 +110,29 @@ var point = new Point
 
 do
 {
-    // 写入
+    // 쓰기
     var data = BitConverter.GetBytes(Int32.Parse(str));
 
 
     // var res = (OperateResult)driver.Write(node, point, Int16.Parse(str));
 
-    // Console.WriteLine($"写入结果：{res.ToJson()}");
+    // Console.WriteLine($"쓰기 결과: {res.ToJson()}");
 
     // point.Address = "Y" + str;
-    // 读取
+    // 읽기
     var dic = driver.Read(node, new[] { point });
     Console.WriteLine($"读取结果1：{dic.ToJson()}");
 
     var data1 = dic[point.Name] as Byte[];
 
-    //Console.WriteLine($"读取结果：{BitConverter.ToInt32(data1)}");
+    //Console.WriteLine($"읽기 결과: {BitConverter.ToInt32(data1)}");
     Console.WriteLine($"读取结果：{data1.ToHex()}");
     Console.WriteLine($"");
     Console.WriteLine("请输入整数值，按q退出：");
 
 } while ((str = Console.ReadLine()) != "q");
 
-// 断开连接
+// 연결 해제
 driver.Close(node);
 driver.Close(node);
 

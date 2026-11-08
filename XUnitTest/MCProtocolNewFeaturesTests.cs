@@ -7,24 +7,24 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MC 协议新功能测试（随机读取、远程控制、UDP、RawRequestData）</summary>
+/// <summary>MC 프로토콜 신기능 테스트 (랜덤 읽기, 원격 제어, UDP, RawRequestData)</summary>
 public class MCProtocolNewFeaturesTests
 {
-    #region 随机读取（Random Read）
+    #region 랜덤 읽기 (Random Read)
 
     [Fact]
     [DisplayName("ReadRandomWords 构建请求数据格式正确")]
     public void BuildRandomReadRequestData_Format()
     {
-        // 使用反射调用私有方法验证数据格式
-        // 随机读取请求数据: [点数(1)] + [软元件代码(1)+地址(3)]×N
+        // 리플렉션으로 비공개 메서드를 호출해 데이터 형식 검증
+        // 랜덤 읽기 요청 데이터: [포인트 수(1)] + [소프트 요소 코드(1)+주소(3)]×N
         var items = new (DeviceCode, Int32)[]
         {
             (DeviceCode.D, 100),
             (DeviceCode.M, 200),
         };
 
-        // 通过 MCMessage 的 RawRequestData 验证序列化
+        // MCMessage의 RawRequestData로 직렬화 검증
         var msg = new MCMessage
         {
             Command = MCMessage.CMD_RANDOM_READ,
@@ -34,28 +34,28 @@ public class MCProtocolNewFeaturesTests
 
         var bytes = msg.ToBytes();
 
-        // 验证固定头
-        Assert.Equal(0x50, bytes[0]); // 子头
+        // 고정 헤더 검증
+        Assert.Equal(0x50, bytes[0]); // 서브헤드
         Assert.Equal(0x00, bytes[1]);
-        Assert.Equal(0x00, bytes[2]); // 网络号
-        Assert.Equal(0xFF, bytes[3]); // PC号
+        Assert.Equal(0x00, bytes[2]); // 네트워크 번호
+        Assert.Equal(0xFF, bytes[3]); // PC 번호
 
-        // 验证命令码 0403h (LE)
+        // 명령 코드 0403h (LE) 검증
         Assert.Equal(0x03, bytes[11]);
         Assert.Equal(0x04, bytes[12]);
 
-        // 验证子命令 0000h (LE)
+        // 서브명령 0000h (LE) 검증
         Assert.Equal(0x00, bytes[13]);
         Assert.Equal(0x00, bytes[14]);
 
-        // 验证请求数据: 点数(2) + D代码(0xA8) + 地址(100=0x64, LE) + M代码(0x90) + 地址(200=0xC8, LE)
-        // 注意: 固定头长度为15, 请求数据从 offset 15 开始
+        // 요청 데이터 검증: 포인트 수(2) + D코드(0xA8) + 주소(100=0x64, LE) + M코드(0x90) + 주소(200=0xC8, LE)
+        // 참고: 고정 헤더 길이는 15, 요청 데이터는 offset 15부터 시작
         var offset = 15;
-        Assert.Equal(2, bytes[offset]); // 点数
-        Assert.Equal(0xA8, bytes[offset + 1]); // D 代码
-        Assert.Equal(100, bytes[offset + 2] | (bytes[offset + 3] << 8) | (bytes[offset + 4] << 16)); // 地址
-        Assert.Equal(0x90, bytes[offset + 5]); // M 代码
-        Assert.Equal(200, bytes[offset + 6] | (bytes[offset + 7] << 8) | (bytes[offset + 8] << 16)); // 地址
+        Assert.Equal(2, bytes[offset]); // 포인트 수
+        Assert.Equal(0xA8, bytes[offset + 1]); // D 코드
+        Assert.Equal(100, bytes[offset + 2] | (bytes[offset + 3] << 8) | (bytes[offset + 4] << 16)); // 주소
+        Assert.Equal(0x90, bytes[offset + 5]); // M 코드
+        Assert.Equal(200, bytes[offset + 6] | (bytes[offset + 7] << 8) | (bytes[offset + 8] << 16)); // 주소
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class MCProtocolNewFeaturesTests
         };
 
         var raw = BuildRawData(items);
-        // 点数（第1字节）应等于 items 数量
+        // 포인트 수 (1바이트)는 items 개수와 같아야 함
         Assert.Equal(items.Length, raw[0]);
     }
 
@@ -93,7 +93,7 @@ public class MCProtocolNewFeaturesTests
 
         var bytes = msg.ToBytes();
 
-        // 反序列化回来
+        // 역직렬화로 복원
         var decoded = new MCMessage();
         using var ms = new MemoryStream(bytes);
         Assert.True(decoded.Read(ms, null));
@@ -104,7 +104,7 @@ public class MCProtocolNewFeaturesTests
 
     #endregion
 
-    #region 远程控制（RUN/STOP）
+    #region 원격 제어 (RUN/STOP)
 
     [Fact]
     [DisplayName("RemoteRun 构建请求帧正确")]
@@ -114,16 +114,16 @@ public class MCProtocolNewFeaturesTests
         {
             Command = MCMessage.CMD_REMOTE_RUN,
             SubCommand = 0x0000,
-            RawRequestData = [0x01], // 清除模式
+            RawRequestData = [0x01], // 클리어 모드
         };
 
         var bytes = msg.ToBytes();
 
-        // 验证命令码 1001h (LE)
+        // 명령 코드 1001h (LE) 검증
         Assert.Equal(0x01, bytes[11]);
         Assert.Equal(0x10, bytes[12]);
 
-        // 验证请求数据: 清除模式
+        // 요청 데이터 검증: 클리어 모드
         Assert.Equal(0x01, bytes[15]);
     }
 
@@ -135,24 +135,24 @@ public class MCProtocolNewFeaturesTests
         {
             Command = MCMessage.CMD_REMOTE_STOP,
             SubCommand = 0x0000,
-            // 使用 RawRequestData 指定空数据
+            // RawRequestData로 빈 데이터 지정
             RawRequestData = [],
         };
 
         var bytes = msg.ToBytes();
 
-        // 验证命令码 1002h (LE)
+        // 명령 코드 1002h (LE) 검증
         Assert.Equal(0x02, bytes[11]);
         Assert.Equal(0x10, bytes[12]);
 
-        // 无请求数据，数据长度应为 6（监视定时器+命令+子命令）
+        // 요청 데이터 없음, 데이터 길이는 6이어야 함 (모니터링 타이머+명령+서브명령)
         var dataLength = bytes[7] | (bytes[8] << 8);
         Assert.Equal(6, dataLength);
     }
 
     #endregion
 
-    #region 串口传输（MC-15）
+    #region 시리얼 포트 전송 (MC-15)
 
     [Fact]
     [DisplayName("Serial 模式默认属性值正确")]
@@ -177,7 +177,7 @@ public class MCProtocolNewFeaturesTests
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
         var bytes = msg.ToBytes();
 
-        // 帧格式不受传输模式影响
+        // 프레임 형식은 전송 모드에 영향을 받지 않음
         Assert.Equal(0x50, bytes[0]);
         Assert.Equal(0x00, bytes[1]);
         Assert.Equal(0x01, bytes[11]); // 0401h LE
@@ -191,7 +191,7 @@ public class MCProtocolNewFeaturesTests
         var msg = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 100, 4);
         var bytes = msg.ToBytes();
 
-        // 1E 帧格式：副头 + PLC号 + 监视定时器 + 起始地址 + 软元件代码 + 点数
+        // 1E 프레임 형식: 서브헤드 + PLC 번호 + 모니터링 타이머 + 시작 주소 + 소프트 요소 코드 + 포인트 수
         Assert.Equal(MC1EMessage.SUB_READ_WORD, bytes[0]);
         Assert.Equal(0xFF, bytes[1]);
         Assert.Equal(MC1EDeviceCode.D, (MC1EDeviceCode)bytes[6]);
@@ -223,7 +223,7 @@ public class MCProtocolNewFeaturesTests
 
     #endregion
 
-    #region UDP 传输
+    #region UDP 전송
 
     [Fact]
     [DisplayName("MCTransportMode 枚举默认值")]
@@ -240,7 +240,7 @@ public class MCProtocolNewFeaturesTests
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
         var bytes = msg.ToBytes();
 
-        // 帧格式不受传输模式影响
+        // 프레임 형식은 전송 모드에 영향을 받지 않음
         Assert.Equal(0x50, bytes[0]);
         Assert.Equal(0x00, bytes[1]);
         Assert.Equal(0x01, bytes[11]); // 0401h LE
@@ -249,7 +249,7 @@ public class MCProtocolNewFeaturesTests
 
     #endregion
 
-    #region RawRequestData 序列化
+    #region RawRequestData 직렬화
 
     [Fact]
     [DisplayName("RawRequestData 影响数据长度计算")]
@@ -264,7 +264,7 @@ public class MCProtocolNewFeaturesTests
 
         var bytes = msg.ToBytes();
 
-        // 数据长度 = 6(监视定时器+命令+子命令) + RawRequestData.Length
+        // 데이터 길이 = 6(모니터링 타이머+명령+서브명령) + RawRequestData.Length
         var expectedDataLength = (UInt16)(6 + msg.RawRequestData.Length);
         var actualDataLength = (UInt16)(bytes[7] | (bytes[8] << 8));
         Assert.Equal(expectedDataLength, actualDataLength);
@@ -277,21 +277,21 @@ public class MCProtocolNewFeaturesTests
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
         var bytes = msg.ToBytes();
 
-        // 标准数据长度 = 12 (固定字段) 
+        // 표준 데이터 길이 = 12 (고정 필드) 
         var dataLength = (UInt16)(bytes[7] | (bytes[8] << 8));
         Assert.Equal(12, dataLength);
 
-        // 验证标准字段
-        Assert.Equal(100, bytes[15] | (bytes[16] << 8) | (bytes[17] << 16)); // 地址
-        Assert.Equal(0xA8, bytes[18]); // D 代码
-        Assert.Equal(4, bytes[19] | (bytes[20] << 8)); // 点数
+        // 표준 필드 검증
+        Assert.Equal(100, bytes[15] | (bytes[16] << 8) | (bytes[17] << 16)); // 주소
+        Assert.Equal(0xA8, bytes[18]); // D 코드
+        Assert.Equal(4, bytes[19] | (bytes[20] << 8)); // 포인트 수
     }
 
     #endregion
 
-    #region 辅助方法
+    #region 보조 메서드
 
-    /// <summary>构建随机读取请求数据</summary>
+    /// <summary>랜덤 읽기 요청 데이터 구성</summary>
     private static Byte[] BuildRawData((DeviceCode code, Int32 addr)[] items)
     {
         using var ms = new MemoryStream();
@@ -309,7 +309,7 @@ public class MCProtocolNewFeaturesTests
 
     #endregion
 
-    #region 远程密码锁定（Remote Password Lock）
+    #region 원격 비밀번호 잠금 (Remote Password Lock)
 
     [Fact]
     [DisplayName("远程密码解锁请求 1630h 数据格式正确")]
@@ -317,12 +317,12 @@ public class MCProtocolNewFeaturesTests
     {
         var raw = InvokeBuildPasswordRequestData("pass");
 
-        // 总长度 = 长度字段(2) + 密码(4) = 6
+        // 전체 길이 = 길이 필드(2) + 비밀번호(4) = 6
         Assert.Equal(6, raw.Length);
-        // 验证密码长度字段 (LE)
+        // 비밀번호 길이 필드 (LE) 검증
         Assert.Equal(0x04, raw[0]);
         Assert.Equal(0x00, raw[1]);
-        // 验证密码 ASCII
+        // 비밀번호 ASCII 검증
         Assert.Equal((Byte)'p', raw[2]);
         Assert.Equal((Byte)'a', raw[3]);
         Assert.Equal((Byte)'s', raw[4]);
@@ -333,7 +333,7 @@ public class MCProtocolNewFeaturesTests
     [DisplayName("远程密码解锁/锁定 通过 MCMessage 构建完整帧")]
     public void RemoteUnlock_FullFrame()
     {
-        // 通过 MCMessage 模拟发送 RemoteUnlock 命令
+        // MCMessage를 통해 RemoteUnlock 명령 전송을 목 처리
         var raw = InvokeBuildPasswordRequestData("pass");
         var msg = new MCMessage
         {
@@ -344,16 +344,16 @@ public class MCProtocolNewFeaturesTests
 
         var bytes = msg.ToBytes();
 
-        // 验证命令码 1630h (LE)
+        // 명령 코드 1630h (LE) 검증
         Assert.Equal(0x30, bytes[11]);
         Assert.Equal(0x16, bytes[12]);
-        // 验证子命令 0000h
+        // 서브명령 0000h 검증
         Assert.Equal(0x00, bytes[13]);
         Assert.Equal(0x00, bytes[14]);
-        // 验证密码长度
+        // 비밀번호 길이 검증
         Assert.Equal(0x04, bytes[15]);
         Assert.Equal(0x00, bytes[16]);
-        // 验证密码 "pass"
+        // 비밀번호 "pass" 검증
         Assert.Equal((Byte)'p', bytes[17]);
         Assert.Equal((Byte)'a', bytes[18]);
         Assert.Equal((Byte)'s', bytes[19]);
@@ -382,7 +382,7 @@ public class MCProtocolNewFeaturesTests
         var unlockBytes = unlockMsg.ToBytes();
         var lockBytes = lockMsg.ToBytes();
 
-        // 命令码不同：1630h vs 1631h
+        // 명령 코드가 다름: 1630h vs 1631h
         Assert.Equal(0x30, unlockBytes[11]);
         Assert.Equal(0x16, unlockBytes[12]);
         Assert.Equal(0x31, lockBytes[11]);
@@ -391,7 +391,7 @@ public class MCProtocolNewFeaturesTests
 
     #endregion
 
-    #region 监视注册（Monitor Registration）
+    #region 모니터링 등록 (Monitor Registration)
 
     [Fact]
     [DisplayName("监视注册 0801h 请求数据格式正确")]
@@ -410,33 +410,33 @@ public class MCProtocolNewFeaturesTests
 
         var raw = InvokeBuildMonitorRegistRequestData(wordDevices, doubleWordDevices);
 
-        // 字设备数量 = 2
+        // 워드 디바이스 수 = 2
         Assert.Equal(2, raw[0]);
-        // 双字设备数量 = 2
+        // 이중 워드 디바이스 수 = 2
         Assert.Equal(2, raw[1]);
-        // 保留 2 字节
+        // 예약 2바이트
         Assert.Equal(0x00, raw[2]);
         Assert.Equal(0x00, raw[3]);
 
-        // 第1个字设备：D0 (addr=0, code=0xA8)
+        // 1번째 워드 디바이스: D0 (addr=0, code=0xA8)
         Assert.Equal(0x00, raw[4]); // addr LE byte 0
         Assert.Equal(0x00, raw[5]); // addr LE byte 1
         Assert.Equal(0x00, raw[6]); // addr LE byte 2
         Assert.Equal(0xA8, raw[7]); // code
 
-        // 第2个字设备：D1 (addr=1, code=0xA8)
+        // 2번째 워드 디바이스: D1 (addr=1, code=0xA8)
         Assert.Equal(0x01, raw[8]);
         Assert.Equal(0x00, raw[9]);
         Assert.Equal(0x00, raw[10]);
         Assert.Equal(0xA8, raw[11]);
 
-        // 第1个双字设备：D2 (addr=2, code=0xA8)
+        // 1번째 이중 워드 디바이스: D2 (addr=2, code=0xA8)
         Assert.Equal(0x02, raw[12]);
         Assert.Equal(0x00, raw[13]);
         Assert.Equal(0x00, raw[14]);
         Assert.Equal(0xA8, raw[15]);
 
-        // 第2个双字设备：D4 (addr=4, code=0xA8)
+        // 2번째 이중 워드 디바이스: D4 (addr=4, code=0xA8)
         Assert.Equal(0x04, raw[16]);
         Assert.Equal(0x00, raw[17]);
         Assert.Equal(0x00, raw[18]);
@@ -460,19 +460,19 @@ public class MCProtocolNewFeaturesTests
 
         var bytes = msg.ToBytes();
 
-        // 验证命令码 0801h (LE)
+        // 명령 코드 0801h (LE) 검증
         Assert.Equal(0x01, bytes[11]);
         Assert.Equal(0x08, bytes[12]);
-        // 验证子命令 0000h
+        // 서브명령 0000h 검증
         Assert.Equal(0x00, bytes[13]);
         Assert.Equal(0x00, bytes[14]);
     }
 
     #endregion
 
-    #region 辅助方法（扩展）
+    #region 보조 메서드 (확장)
 
-    /// <summary>构建远程密码请求数据</summary>
+    /// <summary>원격 비밀번호 요청 데이터 구성</summary>
     private static Byte[] InvokeBuildPasswordRequestData(String password)
     {
         var pwdBytes = System.Text.Encoding.ASCII.GetBytes(password);
@@ -486,7 +486,7 @@ public class MCProtocolNewFeaturesTests
         return ms.ToArray();
     }
 
-    /// <summary>构建监视注册请求数据</summary>
+    /// <summary>모니터링 등록 요청 데이터 구성</summary>
     private static Byte[] InvokeBuildMonitorRegistRequestData(
         (DeviceCode code, Int32 addr)[] wordDevices,
         (DeviceCode code, Int32 addr)[] doubleWordDevices)

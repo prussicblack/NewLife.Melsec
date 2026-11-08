@@ -1,12 +1,12 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 using System.Text;
 using NewLife.Data;
 using NewLife.Serialization;
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>三菱FxLinks响应</summary>
+/// <summary>三菱 FxLinks 응답</summary>
 /// <remarks>
-/// 功能码：
+/// 기능 코드:
 /// ENQ 05
 /// STX 02
 /// ETX 03
@@ -14,31 +14,31 @@ namespace NewLife.Melsec.Protocols;
 /// </remarks>
 public class FxLinksResponse : IAccessor
 {
-    #region 属性
-    /// <summary>控制码。02/03/05/15</summary>
+    #region 속성
+    /// <summary>제어 코드. 02/03/05/15</summary>
     public ControlCodes Code { get; set; }
 
-    /// <summary>站号</summary>
+    /// <summary>스테이션 번호</summary>
     public Byte Station { get; set; }
 
-    /// <summary>PLC号</summary>
+    /// <summary>PLC 번호</summary>
     public Byte PLC { get; set; }
 
-    /// <summary>操作码。解析数据前设置，仅用于判断如何解析数据</summary>
+    /// <summary>운영 코드. 데이터 파싱 전에 설정, 데이터 파싱 방식 판단에만 사용</summary>
     public String Command { get; set; }
 
-    /// <summary>负载数据</summary>
+    /// <summary>페이로드 데이터</summary>
     public String Payload { get; set; }
 
-    /// <summary>校验和。读取出来</summary>
+    /// <summary>체크섬. 읽어온 값</summary>
     public Byte CheckSum { get; set; }
 
-    /// <summary>校验和。计算出来</summary>
+    /// <summary>체크섬. 계산한 값</summary>
     public Byte CheckSum2 { get; set; }
     #endregion
 
-    #region 构造
-    /// <summary>已重载。友好字符串</summary>
+    #region 생성
+    /// <summary>오버라이드. 친화적인 문자열</summary>
     /// <returns></returns>
     public override String ToString()
     {
@@ -49,10 +49,10 @@ public class FxLinksResponse : IAccessor
     }
     #endregion
 
-    #region 方法
-    /// <summary>读取</summary>
-    /// <param name="stream">数据流</param>
-    /// <param name="context">上下文</param>
+    #region 메서드
+    /// <summary>읽기</summary>
+    /// <param name="stream">데이터 스트림</param>
+    /// <param name="context">컨텍스트</param>
     /// <returns></returns>
     public virtual Boolean Read(Stream stream, Object context)
     {
@@ -77,7 +77,7 @@ public class FxLinksResponse : IAccessor
                     {
                         Payload = stream.ReadBytes(len).ToStr();
                         //var str = stream.ReadBytes(len).ToStr();
-                        //// 位读取时，每个点位占1个字符；字读取时，每个点位占4个字符
+                        //// 비트 읽기 시 각 포인트는 1자, 워드 읽기 시 각 포인트는 4자
                         //if (len == 1)
                         //    Payload = new Byte[] { Convert.ToByte(str, 16) };
                         //else if (Command == "BR")
@@ -108,7 +108,7 @@ public class FxLinksResponse : IAccessor
                     Station = hex.ToByte(0);
                     PLC = hex.ToByte(2);
 
-                    // 如果还有数据，作为负载。一般ACK后面没有了，而NAK后面有错误码
+                    // 데이터가 더 있으면 페이로드로 사용. 보통 ACK 뒤에는 없고 NAK 뒤에는 에러 코드가 있음
                     if (hex.Length > 4) Payload = hex[4..];
 
                     break;
@@ -123,9 +123,9 @@ public class FxLinksResponse : IAccessor
         return true;
     }
 
-    /// <summary>写入消息到数据流</summary>
-    /// <param name="stream">数据流</param>
-    /// <param name="context">上下文</param>
+    /// <summary>메시지를 데이터 스트림에 쓰기</summary>
+    /// <param name="stream">데이터 스트림</param>
+    /// <param name="context">컨텍스트</param>
     /// <returns></returns>
     public virtual Boolean Write(Stream stream, Object context)
     {
@@ -145,7 +145,7 @@ public class FxLinksResponse : IAccessor
                     if (pk != null)
                     {
                         sb.Append(pk);
-                        //// 位读取时，每个点位占1个字符；字读取时，每个点位占4个字符
+                        //// 비트 읽기 시 각 포인트는 1자, 워드 읽기 시 각 포인트는 4자
                         //if (pk.Total == 1)
                         //    sb.Append(pk[0].ToString("X"));
                         //else if (Command == "BR")
@@ -203,7 +203,7 @@ public class FxLinksResponse : IAccessor
         return true;
     }
 
-    /// <summary>消息转数据包</summary>
+    /// <summary>메시지를 데이터 패킷으로 변환</summary>
     /// <returns></returns>
     public IPacket ToPacket()
     {

@@ -8,10 +8,10 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MC协议3E帧 ASCII 模式响应解析测试</summary>
+/// <summary>MC 프로토콜 3E 프레임 ASCII 모드 응답 파싱 테스트</summary>
 public class MCResponseAsciiTests
 {
-    /// <summary>将二进制帧字节数组转换为 ASCII 十六进制文本字节</summary>
+    /// <summary>바이너리 프레임 바이트 배열을 ASCII 16진수 텍스트 바이트로 변환</summary>
     private static Byte[] BinaryToAsciiText(Byte[] binary) =>
         Encoding.ASCII.GetBytes(binary.ToHex());
 
@@ -19,7 +19,7 @@ public class MCResponseAsciiTests
     [DisplayName("ASCII 读字成功响应解析")]
     public void Read_WordResponse_Success_Ascii()
     {
-        // 二进制帧：D0-00-00-FF-FF-03-00-0A-00-00-00-11-00-22-00-33-00-44-00
+        // 바이너리 프레임: D0-00-00-FF-FF-03-00-0A-00-00-00-11-00-22-00-33-00-44-00
         // dataLength = 0x000A (10) = EndCode(2) + ResponseData(8)
         var binary = new Byte[]
         {
@@ -43,9 +43,9 @@ public class MCResponseAsciiTests
     [DisplayName("ASCII 读位成功响应解析")]
     public void Read_BitResponse_Success_Ascii()
     {
-        // 位响应 M0×8: [ON, OFF, ON, OFF, ON, OFF, ON, OFF]
-        // PackBits 打包为字节：[0x01, 0x01, 0x01, 0x01]
-        // EndCode 2字节 + ResponseData 4字节 = dataLength=6
+        // 비트 응답 M0×8: [ON, OFF, ON, OFF, ON, OFF, ON, OFF]
+        // PackBits로 바이트 패킹: [0x01, 0x01, 0x01, 0x01]
+        // EndCode 2바이트 + ResponseData 4바이트 = dataLength=6
         var binary = new Byte[]
         {
             0xD0, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x06, 0x00,
@@ -72,7 +72,7 @@ public class MCResponseAsciiTests
     [DisplayName("ASCII 错误响应解析")]
     public void Read_ErrorResponse_Ascii()
     {
-        // 结束码 0x0050 = 通信超时等错误
+        // 종료 코드 0x0050 = 통신 타임아웃 등 오류
         var binary = new Byte[]
         {
             0xD0, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x02, 0x00,
@@ -90,7 +90,7 @@ public class MCResponseAsciiTests
     [DisplayName("ASCII 写入成功响应解析")]
     public void Read_WriteResponse_Success_Ascii()
     {
-        // 写入响应只有 ACK，无数据：结束码 0x0000
+        // 쓰기 응답은 ACK만 있고 데이터 없음: 종료 코드 0x0000
         var binary = new Byte[]
         {
             0xD0, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x02, 0x00,
@@ -127,7 +127,7 @@ public class MCResponseAsciiTests
     [DisplayName("ASCII 模式 D000 子头校验")]
     public void Read_InvalidSubHeader_ReturnsFalse_Ascii()
     {
-        // 使用错误的子头 "E000"
+        // 잘못된 서브헤드 "E000" 사용
         var binary = new Byte[]
         {
             0xE0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

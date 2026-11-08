@@ -1,13 +1,13 @@
-﻿namespace NewLife.Melsec.Protocols;
+namespace NewLife.Melsec.Protocols;
 
-/// <summary>FxLinks异常</summary>
+/// <summary>FxLinks 예외</summary>
 public class FxLinksException : Exception
 {
-    /// <summary>异常代码</summary>
+    /// <summary>예외 코드</summary>
     public ErrorCodes ErrorCode { get; set; }
 
     /// <summary>
-    /// 实例化异常
+    /// 예외 인스턴스 생성
     /// </summary>
     /// <param name="errorCode"></param>
     /// <param name="message"></param>

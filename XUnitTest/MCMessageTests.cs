@@ -7,7 +7,7 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MC协议3E帧序列化/反序列化测试</summary>
+/// <summary>MC 프로토콜 3E 프레임 직렬화/역직렬화 테스트</summary>
 public class MCMessageTests
 {
     #region BuildReadWord
@@ -16,7 +16,7 @@ public class MCMessageTests
     [DisplayName("读字请求 D100×4 编码应匹配架构文档示例")]
     public void BuildReadWord_D100_4Words_MatchesDocExample()
     {
-        // 架构文档示例：读 D100 起 4 个字
+        // 아키텍처 문서 예시: D100부터 4개의 워드 읽기
         // 50 00 00 FF FF 03 00 0C 00 0A 00 01 04 00 00 64 00 00 A8 04 00
         var expected = "50-00-00-FF-FF-03-00-0C-00-0A-00-01-04-00-00-64-00-00-A8-04-00".ToHex();
 
@@ -204,7 +204,7 @@ public class MCMessageTests
     [DisplayName("PackBits 奇数个点 最后字节高nibble补零")]
     public void PackBits_OddCount()
     {
-        // [1,0,1]: byte[0]=0x01, byte[1]=0x01(只有低nibble)
+        // [1,0,1]: byte[0]=0x01, byte[1]=0x01(하위 nibble만)
         var result = MCMessage.PackBits([1, 0, 1]);
         Assert.Equal([0x01, 0x01], result);
     }
@@ -250,7 +250,7 @@ public class MCMessageTests
     [DisplayName("响应帧 字数据解析 应返回正确字数组")]
     public void MCResponse_ReadWordResponse_MatchesDocExample()
     {
-        // 架构文档响应示例: D100-D103 = 0x0011, 0x0022, 0x0033, 0x0044
+        // 아키텍처 문서 응답 예시: D100-D103 = 0x0011, 0x0022, 0x0033, 0x0044
         // D0 00 00 FF FF 03 00 0A 00 00 00 11 00 22 00 33 00 44 00
         var responseBytes = "D0-00-00-FF-FF-03-00-0A-00-00-00-11-00-22-00-33-00-44-00".ToHex();
 
@@ -333,7 +333,7 @@ public class MCMessageTests
     [DisplayName("响应帧 子头不匹配时 Read 返回 false")]
     public void MCResponse_Read_BadSubHeader_ReturnsFalse()
     {
-        // 用请求帧子头 0x50 代替响应帧子头 0xD0
+        // 요청 프레임 서브헤드 0x50으로 응답 프레임 서브헤드 0xD0 대체
         var badBytes = "50-00-00-FF-FF-03-00-02-00-00-00".ToHex();
         var rs = new MCResponse();
         Assert.False(rs.Read(new MemoryStream(badBytes), null));
@@ -481,7 +481,7 @@ public class MCMessageTests
 
     #endregion
 
-    #region 4E 帧测试
+    #region 4E 프레임 테스트
 
     [Fact]
     [DisplayName("4E 帧读字请求 D100×4 编码验证（子头 5400h + 序列号）")]
@@ -493,22 +493,22 @@ public class MCMessageTests
 
         var bytes = msg.ToBytes();
 
-        // 4E 帧：子头 0x54 0x00 + 序列号 0x01 0x00 + 保留 0x00 0x00 + 路由(5B) + 数据长度 + 定时器 + 命令 + 子命令 + 地址 + 代码 + 点数
-        // 预期：54-00-01-00-00-00-00-FF-FF-03-00-0C-00-0A-00-01-04-00-00-64-00-00-A8-04-00
+        // 4E 프레임: 서브헤드 0x54 0x00 + 시퀀스 번호 0x01 0x00 + 예약 0x00 0x00 + 라우팅(5B) + 데이터 길이 + 타이머 + 명령 + 서브명령 + 주소 + 코드 + 포인트 수
+        // 예상: 54-00-01-00-00-00-00-FF-FF-03-00-0C-00-0A-00-01-04-00-00-64-00-00-A8-04-00
         Assert.Equal(0x54, bytes[0]);
         Assert.Equal(0x00, bytes[1]);
-        // 序列号 = 1 (LE)
+        // 시퀀스 번호 = 1 (LE)
         Assert.Equal(0x01, bytes[2]);
         Assert.Equal(0x00, bytes[3]);
-        // 保留
+        // 예약
         Assert.Equal(0x00, bytes[4]);
         Assert.Equal(0x00, bytes[5]);
-        // 网络号
+        // 네트워크 번호
         Assert.Equal(0x00, bytes[6]);
-        // PC号
+        // PC 번호
         Assert.Equal(0xFF, bytes[7]);
 
-        // Round-trip 反序列化验证
+        // Round-trip 역직렬화 검증
         var decoded = new MCMessage();
         var ok = decoded.Read(new MemoryStream(bytes), null);
         Assert.True(ok);
@@ -534,7 +534,7 @@ public class MCMessageTests
         Assert.NotNull(bytes);
         Assert.True(bytes.Length > 0);
 
-        // ASCII 模式反序列化
+        // ASCII 모드 역직렬화
         var decoded = new MCMessage { DataFormat = MCDataFormat.Ascii };
         var ok = decoded.Read(new MemoryStream(bytes), null);
         Assert.True(ok);
@@ -559,7 +559,7 @@ public class MCMessageTests
         var bytes3E = msg3E.ToBytes();
         var bytes4E = msg4E.ToBytes();
 
-        // 4E 帧比 3E 帧多 4 字节（序列号字段）
+        // 4E 프레임은 3E 프레임보다 4바이트 많음 (시퀀스 번호 필드)
         Assert.Equal(bytes3E.Length + 4, bytes4E.Length);
     }
 
@@ -567,20 +567,20 @@ public class MCMessageTests
     [DisplayName("4E 帧响应解析 验证子头 D400h 和序列号")]
     public void Response_4E_Parse()
     {
-        // 构造 4E 帧响应二进制数据
-        // D4-00 + 序列号(0x01 0x00 0x00 0x00) + 网络号(00) + PC号(FF) + IO单元号(FF03 LE) + 通道号(00)
-        // + 数据长度(06 00=6) + 结束码(00 00=成功) + 响应数据(34 12 78 56)
+        // 4E 프레임 응답 바이너리 데이터 구성
+        // D4-00 + 시퀀스 번호(0x01 0x00 0x00 0x00) + 네트워크 번호(00) + PC 번호(FF) + IO 유닛 번호(FF03 LE) + 채널 번호(00)
+        // + 데이터 길이(06 00=6) + 종료 코드(00 00=성공) + 응답 데이터(34 12 78 56)
         var data = new Byte[]
         {
-            0xD4, 0x00,          // 4E 子头
-            0x01, 0x00,          // 序列号 LE = 1
-            0x00, 0x00,          // 保留
-            0x00,                // 网络号
-            0xFF,                // PC号
-            0xFF, 0x03,          // IO单元号
-            0x00,                // 通道号
-            0x06, 0x00,          // 数据长度 = 6
-            0x00, 0x00,          // 结束码 = 成功
+            0xD4, 0x00,          // 4E 서브헤드
+            0x01, 0x00,          // 시퀀스 번호 LE = 1
+            0x00, 0x00,          // 예약
+            0x00,                // 네트워크 번호
+            0xFF,                // PC 번호
+            0xFF, 0x03,          // IO 유닛 번호
+            0x00,                // 채널 번호
+            0x06, 0x00,          // 데이터 길이 = 6
+            0x00, 0x00,          // 종료 코드 = 성공
             0x34, 0x12,          // D100 = 0x1234
             0x78, 0x56,          // D101 = 0x5678
         };

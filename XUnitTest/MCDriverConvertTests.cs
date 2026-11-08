@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using NewLife.IoT.ThingModels;
 using NewLife.IoT.ThingSpecification;
@@ -8,14 +8,14 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>测试用子类，暴露 protected ConvertToWords</summary>
+/// <summary>테스트용 하위 클래스. protected인 ConvertToWords를 노출</summary>
 internal sealed class TestMCDriver : MCDriver
 {
     public UInt16[] ConvertToWordsPublic(Object data, IPoint point, ThingSpec spec)
         => ConvertToWords(data, point, spec);
 }
 
-/// <summary>MCDriver.ConvertToWords 数据类型转换测试</summary>
+/// <summary>MCDriver.ConvertToWords 데이터 타입 변환 테스트</summary>
 public class MCDriverConvertTests
 {
     private readonly TestMCDriver _driver = new();

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace XUnitTest;
 
-/// <summary>MC 协议多类型数据转换读取测试</summary>
+/// <summary>MC 프로토콜 다중 타입 데이터 변환 읽기 테스트</summary>
 public class MCTypeConversionTests
 {
     [Fact]
@@ -35,7 +35,7 @@ public class MCTypeConversionTests
         var words = new UInt16[] { 0xF5C3, 0x4048 };
         var raw = (UInt32)(words[0] | (words[1] << 16));
         var result = BitConverter.ToSingle(BitConverter.GetBytes(raw), 0);
-        Assert.Equal(3.14f, result, 2); // 近似比较
+        Assert.Equal(3.14f, result, 2); // 근사 비교
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-﻿using System.IO.Ports;
+using System.IO.Ports;
 using NewLife;
 using NewLife.Data;
 using NewLife.IoT.Drivers;
@@ -9,7 +9,7 @@ using NewLife.Melsec.Drivers;
 XTrace.UseConsole();
 
 {
-    // FxLinks485 读取 WR
+    // FxLinks485 WR 읽기
     // 05 30 35 46 46 57 52 30 44 30 32 31 30 30 31 33 32
     // 02 30 35 46 46 30 30 30 31 03 42 35
     // 05FFWR0D02100132
@@ -24,7 +24,7 @@ XTrace.UseConsole();
 }
 
 {
-    // FxLinks485 写入 WW
+    // FxLinks485 WW 쓰기
     // 05 30 35 46 46 57 57 30 44 30 32 31 30 30 31 30 30 30 31 46 38
     // 06 30 35 46 46
     // 05FFWW0D0210010001F8

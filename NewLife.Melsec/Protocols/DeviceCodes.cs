@@ -1,72 +1,72 @@
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>MC协议软元件（Device）代码，二进制模式</summary>
+/// <summary>MC 프로토콜 소프트 요소(디바이스) 코드, 바이너리 모드</summary>
 public enum DeviceCode : Byte
 {
-    /// <summary>特殊继电器（位）</summary>
+    /// <summary>특수 릴레이 (비트)</summary>
     SM = 0x91,
 
-    /// <summary>特殊寄存器（字）</summary>
+    /// <summary>특수 레지스터 (워드)</summary>
     SD = 0xA9,
 
-    /// <summary>输入继电器（位，编号十六进制）</summary>
+    /// <summary>입력 릴레이 (비트, 16진 번호)</summary>
     X = 0x9C,
 
-    /// <summary>输出继电器（位，编号十六进制）</summary>
+    /// <summary>출력 릴레이 (비트, 16진 번호)</summary>
     Y = 0x9D,
 
-    /// <summary>直接输入（位，编号十六进制）</summary>
+    /// <summary>직접 입력 (비트, 16진 번호)</summary>
     DX = 0xA2,
 
-    /// <summary>直接输出（位，编号十六进制）</summary>
+    /// <summary>직접 출력 (비트, 16진 번호)</summary>
     DY = 0xA3,
 
-    /// <summary>辅助继电器（位）</summary>
+    /// <summary>보조 릴레이 (비트)</summary>
     M = 0x90,
 
-    /// <summary>锁存继电器（位）</summary>
+    /// <summary>래치 릴레이 (비트)</summary>
     L = 0x92,
 
-    /// <summary>报警继电器（位）</summary>
+    /// <summary>알람 릴레이 (비트)</summary>
     F = 0x93,
 
-    /// <summary>边沿继电器（位）</summary>
+    /// <summary>엣지 릴레이 (비트)</summary>
     V = 0x94,
 
-    /// <summary>链接继电器（位，编号十六进制）</summary>
+    /// <summary>링크 릴레이 (비트, 16진 번호)</summary>
     B = 0xA0,
 
-    /// <summary>定时器线圈（位）</summary>
+    /// <summary>타이머 코일 (비트)</summary>
     TC = 0xC1,
 
-    /// <summary>定时器当前值（字）</summary>
+    /// <summary>타이머 현재값 (워드)</summary>
     TS = 0xC0,
 
-    /// <summary>计数器线圈（位）</summary>
+    /// <summary>카운터 코일 (비트)</summary>
     CC = 0xC5,
 
-    /// <summary>计数器当前值（字）</summary>
+    /// <summary>카운터 현재값 (워드)</summary>
     CS = 0xC4,
 
-    /// <summary>数据寄存器（字）</summary>
+    /// <summary>데이터 레지스터 (워드)</summary>
     D = 0xA8,
 
-    /// <summary>链接寄存器（字，编号十六进制）</summary>
+    /// <summary>링크 레지스터 (워드, 16진 번호)</summary>
     W = 0xB4,
 
-    /// <summary>文件寄存器（字）</summary>
+    /// <summary>파일 레지스터 (워드)</summary>
     R = 0xAF,
 
-    /// <summary>扩展文件寄存器（字）</summary>
+    /// <summary>확장 파일 레지스터 (워드)</summary>
     ZR = 0xB0,
 }
 
-/// <summary>DeviceCode 工具方法</summary>
+/// <summary>DeviceCode 유틸리티 메서드</summary>
 public static class DeviceCodeHelper
 {
-    /// <summary>判断是否为位软元件（Bit Device）</summary>
-    /// <param name="code">软元件代码</param>
-    /// <returns>true=位软元件；false=字软元件</returns>
+    /// <summary>비트 소프트 요소(Bit Device)인지 판단</summary>
+    /// <param name="code">소프트 요소 코드</param>
+    /// <returns>true=비트 소프트 요소, false=워드 소프트 요소</returns>
     public static Boolean IsBitDevice(DeviceCode code) => code switch
     {
         DeviceCode.SM or DeviceCode.X or DeviceCode.Y or DeviceCode.DX or
@@ -75,25 +75,25 @@ public static class DeviceCodeHelper
         _ => false,
     };
 
-    /// <summary>解析MC协议地址字符串，返回软元件代码与地址编号</summary>
+    /// <summary>MC 프로토콜 주소 문자열을 분석하여 소프트 요소 코드와 주소 번호를 반환</summary>
     /// <remarks>
-    /// 地址格式：D100、M200、X1F、Y2A、B100、TC5、ZR10000 等。
-    /// X/Y/B/W/DX/DY 使用十六进制编号；其余使用十进制编号。
-    /// 冒号后面的位域（如 D100:0）会被自动忽略。
+    /// 주소 형식: D100, M200, X1F, Y2A, B100, TC5, ZR10000 등.
+    /// X/Y/B/W/DX/DY는 16진 번호 사용, 나머지는 10진 번호 사용.
+    /// 콜론 뒤의 비트 영역 (예: D100:0)은 자동 무시됨.
     /// </remarks>
-    /// <param name="address">地址字符串</param>
-    /// <returns>软元件代码与地址编号的元组</returns>
+    /// <param name="address">주소 문자열</param>
+    /// <returns>소프트 요소 코드와 주소 번호의 튜플</returns>
     public static (DeviceCode Code, Int32 Address) ParseAddress(String address)
     {
         if (address.IsNullOrEmpty()) throw new ArgumentNullException(nameof(address));
 
-        // 去除冒号后面的位域，如 "D100:0" → "D100"
+        // 콜론 뒤의 비트 영역 제거, 예: "D100:0" → "D100"
         var colonPos = address.IndexOf(':');
         if (colonPos > 0) address = address[..colonPos];
 
         address = address.ToUpperInvariant().Trim();
 
-        // 先尝试双字符前缀（ZR、SM、SD、DX、DY、TC、TS、CC、CS）
+        // 먼저 2자 접두어 시도 (ZR, SM, SD, DX, DY, TC, TS, CC, CS)
         if (address.Length >= 3)
         {
             var prefix2 = address[..2];
@@ -111,7 +111,7 @@ public static class DeviceCodeHelper
             }
         }
 
-        // 单字符前缀
+        // 1자 접두어
         if (address.Length >= 2)
         {
             var prefix1 = address[..1];
