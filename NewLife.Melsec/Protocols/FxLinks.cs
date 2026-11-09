@@ -218,7 +218,7 @@ public class FxLinks : DisposeBase
                 break;
         }
 
-        throw new NotSupportedException($"FxLinksRead不支持[{command}]");
+        throw new NotSupportedException($"FxLinksRead does not support [{command}]");
     }
 
     /// <summary>비트 단위 읽기, BR</summary>
@@ -296,7 +296,7 @@ public class FxLinks : DisposeBase
                 break;
         }
 
-        throw new NotSupportedException($"FxLinksWrite不支持[{command}]");
+        throw new NotSupportedException($"FxLinksWrite does not support [{command}]");
     }
 
     /// <summary>비트 단위 쓰기, BW</summary>

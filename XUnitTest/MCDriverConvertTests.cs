@@ -68,7 +68,7 @@ public class MCDriverConvertTests
     #region Int32 / UInt32
 
     [Fact]
-    [DisplayName("ConvertToWords Int32 0x12345678 -> LE两字 [Lo, Hi]")]
+    [DisplayName("ConvertToWords Int32 0x12345678 -> LE two words [Lo, Hi]")]
     public void ConvertToWords_Int32_LittleEndian()
     {
         var result = _driver.ConvertToWordsPublic((Int32)0x12345678, WordPoint("D0", "int"), null);
@@ -93,7 +93,7 @@ public class MCDriverConvertTests
     #region Int64 / UInt64
 
     [Fact]
-    [DisplayName("ConvertToWords Int64 4个字 LE排列")]
+    [DisplayName("ConvertToWords Int64 4 words LE order")]
     public void ConvertToWords_Int64()
     {
         var val = 0x0001_0002_0003_0004L;
@@ -110,7 +110,7 @@ public class MCDriverConvertTests
     #region Single
 
     [Fact]
-    [DisplayName("ConvertToWords Single 1.0f -> 2字 IEEE 754 LE")]
+    [DisplayName("ConvertToWords Single 1.0f -> 2 words IEEE 754 LE")]
     public void ConvertToWords_Single_One()
     {
         // 1.0f IEEE754 = 0x3F800000; LE: [0x0000, 0x3F80]
@@ -129,7 +129,7 @@ public class MCDriverConvertTests
     #region Double
 
     [Fact]
-    [DisplayName("ConvertToWords Double 1.0 -> 4字 IEEE 754 LE")]
+    [DisplayName("ConvertToWords Double 1.0 -> 4 words IEEE 754 LE")]
     public void ConvertToWords_Double_One()
     {
         var bytes = BitConverter.GetBytes(1.0);

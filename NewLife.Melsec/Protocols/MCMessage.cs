@@ -552,7 +552,7 @@ public class MCMessage : IAccessor
         for (var i = 0; i < hexLen; i++)
         {
             var b = stream.ReadByte();
-            if (b < 0) throw new InvalidOperationException("无法读取 ASCII 十六进制数据，流已结束");
+            if (b < 0) throw new InvalidOperationException("Cannot read ASCII hex data, stream already ended");
             hex[i] = (Char)b;
         }
         return new String(hex).ToHex();

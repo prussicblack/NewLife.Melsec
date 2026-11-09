@@ -13,7 +13,7 @@ public class MCMessageTests
     #region BuildReadWord
 
     [Fact]
-    [DisplayName("读字请求 D100×4 编码应匹配架构文档示例")]
+    [DisplayName("ReadWord request D100×4 encoding matches the architecture doc example")]
     public void BuildReadWord_D100_4Words_MatchesDocExample()
     {
         // 아키텍처 문서 예시: D100부터 4개의 워드 읽기
@@ -27,7 +27,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("读字请求字段属性验证")]
+    [DisplayName("ReadWord request field properties")]
     public void BuildReadWord_Properties()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -41,7 +41,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("读字请求序列化后再反序列化保持一致 Round-trip")]
+    [DisplayName("ReadWord request round-trip")]
     public void BuildReadWord_RoundTrip()
     {
         var original = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -66,7 +66,7 @@ public class MCMessageTests
     #region BuildReadBit
 
     [Fact]
-    [DisplayName("读位请求 M200x8 编码验证")]
+    [DisplayName("ReadBit request M200x8 encoding")]
     public void BuildReadBit_M200_8Bits()
     {
         // M=0x90, addr=200=0xC8, count=8, subCmd=0x0001(bit mode)
@@ -80,7 +80,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("读位请求字段属性验证")]
+    [DisplayName("ReadBit request field properties")]
     public void BuildReadBit_Properties()
     {
         var msg = MCMessage.BuildReadBit(DeviceCode.X, 0x1F, 16);
@@ -93,7 +93,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("读位请求 Round-trip")]
+    [DisplayName("ReadBit request round-trip")]
     public void BuildReadBit_RoundTrip()
     {
         var original = MCMessage.BuildReadBit(DeviceCode.M, 200, 16);
@@ -114,7 +114,7 @@ public class MCMessageTests
     #region BuildWriteWord
 
     [Fact]
-    [DisplayName("写字请求 D100 写入3个字 编码验证")]
+    [DisplayName("WriteWord request D100 write 3 words encoding")]
     public void BuildWriteWord_D100_3Values()
     {
         // Command=0x1401 LE=01 14, SubCmd=0x0000, WriteData=[1,2,3] -> 01 00 02 00 03 00
@@ -128,7 +128,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("写字请求 Round-trip 包含写入数据")]
+    [DisplayName("WriteWord request round-trip with written data")]
     public void BuildWriteWord_RoundTrip()
     {
         UInt16[] values = [0x1234, 0xABCD, 0x0000, 0xFFFF];
@@ -152,7 +152,7 @@ public class MCMessageTests
     #region BuildWriteBit
 
     [Fact]
-    [DisplayName("写位请求 M0 写入4位 位打包编码验证")]
+    [DisplayName("WriteBit request M0 write 4 bits, bit-packing encoding")]
     public void BuildWriteBit_M0_4Bits()
     {
         // PackBits([1,0,1,0]):
@@ -168,7 +168,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("写位请求 Round-trip 包含写入数据")]
+    [DisplayName("WriteBit request round-trip with written data")]
     public void BuildWriteBit_RoundTrip()
     {
         UInt16[] values = [1, 0, 1, 1, 0, 0];
@@ -192,7 +192,7 @@ public class MCMessageTests
     #region PackBits / PackWords
 
     [Fact]
-    [DisplayName("PackBits 偶数个点 低nibble=第1点 高nibble=第2点")]
+    [DisplayName("PackBits even count: low nibble = 1st bit, high nibble = 2nd bit")]
     public void PackBits_EvenCount()
     {
         // [1,0,1,1]: byte[0]=(1|0)=0x01, byte[1]=(1|(1<<4))=0x11
@@ -201,7 +201,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("PackBits 奇数个点 最后字节高nibble补零")]
+    [DisplayName("PackBits odd count: last byte high nibble zero-padded")]
     public void PackBits_OddCount()
     {
         // [1,0,1]: byte[0]=0x01, byte[1]=0x01(하위 nibble만)
@@ -210,7 +210,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("PackWords 每个字2字节LE排列")]
+    [DisplayName("PackWords 2 bytes per word in LE order")]
     public void PackWords_MultipleValues()
     {
         var result = MCMessage.PackWords([0x0011, 0x0022, 0x1234]);
@@ -222,7 +222,7 @@ public class MCMessageTests
     #region ToString
 
     [Fact]
-    [DisplayName("ToString 读字请求友好字符串")]
+    [DisplayName("ToString ReadWord friendly string")]
     public void ToString_ReadWord()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -233,7 +233,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("ToString 写位请求友好字符串")]
+    [DisplayName("ToString WriteBit friendly string")]
     public void ToString_WriteBit()
     {
         var msg = MCMessage.BuildWriteBit(DeviceCode.M, 0, [1, 0]);
@@ -247,7 +247,7 @@ public class MCMessageTests
     #region MCResponse
 
     [Fact]
-    [DisplayName("响应帧 字数据解析 应返回正确字数组")]
+    [DisplayName("Response frame word data parsing returns correct array")]
     public void MCResponse_ReadWordResponse_MatchesDocExample()
     {
         // 아키텍처 문서 응답 예시: D100-D103 = 0x0011, 0x0022, 0x0033, 0x0044
@@ -270,7 +270,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("响应帧 位数据解析 ON/OFF 顺序正确")]
+    [DisplayName("Response frame bit data parsing ON/OFF order")]
     public void MCResponse_GetBitData_CorrectOrder()
     {
         // [true,false,true,true] PackBits -> [0x01, 0x11]
@@ -285,7 +285,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("响应帧 错误码非零应反映在 EndCode 属性")]
+    [DisplayName("Response frame non-zero error code reflected in EndCode")]
     public void MCResponse_ErrorCode_ReflectedInEndCode()
     {
         var rs = MCResponse.BuildErrorResponse(0xC056);
@@ -300,7 +300,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("响应帧 Round-trip 字读响应")]
+    [DisplayName("Response frame round-trip word read")]
     public void MCResponse_RoundTrip_WordData()
     {
         UInt16[] values = [0x1234, 0xABCD, 0x0000, 0xFFFF];
@@ -316,7 +316,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("响应帧 Round-trip 写入响应无数据域")]
+    [DisplayName("Response frame round-trip write response without data")]
     public void MCResponse_RoundTrip_WriteResponse()
     {
         var original = MCResponse.BuildWriteResponse();
@@ -330,7 +330,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("响应帧 子头不匹配时 Read 返回 false")]
+    [DisplayName("Response frame Read returns false on sub-header mismatch")]
     public void MCResponse_Read_BadSubHeader_ReturnsFalse()
     {
         // 요청 프레임 서브헤드 0x50으로 응답 프레임 서브헤드 0xD0 대체
@@ -344,7 +344,7 @@ public class MCMessageTests
     #region DeviceCodeHelper.ParseAddress
 
     [Fact]
-    [DisplayName("解析 D100 DeviceCode.D 地址100十进制")]
+    [DisplayName("Parse D100 DeviceCode.D address 100 decimal")]
     public void ParseAddress_D100()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("D100");
@@ -353,7 +353,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 M200 DeviceCode.M 地址200十进制")]
+    [DisplayName("Parse M200 DeviceCode.M address 200 decimal")]
     public void ParseAddress_M200()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("M200");
@@ -362,7 +362,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 X1F DeviceCode.X 地址31十六进制")]
+    [DisplayName("Parse X1F DeviceCode.X address 31 hex")]
     public void ParseAddress_X1F()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("X1F");
@@ -371,7 +371,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 Y2A DeviceCode.Y 地址42十六进制")]
+    [DisplayName("Parse Y2A DeviceCode.Y address 42 hex")]
     public void ParseAddress_Y2A()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("Y2A");
@@ -380,7 +380,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 B100 DeviceCode.B 地址256十六进制")]
+    [DisplayName("Parse B100 DeviceCode.B address 256 hex")]
     public void ParseAddress_B100()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("B100");
@@ -389,7 +389,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 W20 DeviceCode.W 地址32十六进制")]
+    [DisplayName("Parse W20 DeviceCode.W address 32 hex")]
     public void ParseAddress_W20()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("W20");
@@ -398,7 +398,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 TC5 DeviceCode.TC 地址5十进制")]
+    [DisplayName("Parse TC5 DeviceCode.TC address 5 decimal")]
     public void ParseAddress_TC5()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("TC5");
@@ -407,7 +407,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 ZR1000 DeviceCode.ZR 地址1000十进制")]
+    [DisplayName("Parse ZR1000 DeviceCode.ZR address 1000 decimal")]
     public void ParseAddress_ZR1000()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("ZR1000");
@@ -416,7 +416,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析 SM10 DeviceCode.SM 地址10十进制")]
+    [DisplayName("Parse SM10 DeviceCode.SM address 10 decimal")]
     public void ParseAddress_SM10()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("SM10");
@@ -425,7 +425,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析小写地址 d100:0 忽略位域和大小写")]
+    [DisplayName("Parse lowercase d100:0 ignores bit field and case")]
     public void ParseAddress_LowerCaseWithBitSuffix()
     {
         var (code, addr) = DeviceCodeHelper.ParseAddress("d100:0");
@@ -434,14 +434,14 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("解析不支持的地址格式 抛出 NotSupportedException")]
+    [DisplayName("Parse unsupported format throws NotSupportedException")]
     public void ParseAddress_InvalidFormat_Throws()
     {
         Assert.Throws<NotSupportedException>(() => DeviceCodeHelper.ParseAddress("Z100"));
     }
 
     [Fact]
-    [DisplayName("解析 null 地址 抛出 ArgumentNullException")]
+    [DisplayName("Parse null address throws ArgumentNullException")]
     public void ParseAddress_Null_Throws()
     {
         Assert.Throws<ArgumentNullException>(() => DeviceCodeHelper.ParseAddress(null));
@@ -452,7 +452,7 @@ public class MCMessageTests
     #region DeviceCodeHelper.IsBitDevice
 
     [Fact]
-    [DisplayName("M/X/Y/B/TC/CC/SM/DX/DY 是位软元件")]
+    [DisplayName("M/X/Y/B/TC/CC/SM/DX/DY are bit devices")]
     public void IsBitDevice_BitDevices()
     {
         Assert.True(DeviceCodeHelper.IsBitDevice(DeviceCode.M));
@@ -467,7 +467,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("D/W/R/ZR/TS/CS/SD 是字软元件")]
+    [DisplayName("D/W/R/ZR/TS/CS/SD are word devices")]
     public void IsBitDevice_WordDevices()
     {
         Assert.False(DeviceCodeHelper.IsBitDevice(DeviceCode.D));
@@ -484,7 +484,7 @@ public class MCMessageTests
     #region 4E 프레임 테스트
 
     [Fact]
-    [DisplayName("4E 帧读字请求 D100×4 编码验证（子头 5400h + 序列号）")]
+    [DisplayName("4E frame ReadWord request D100×4 encoding (sub-header 5400h + sequence number)")]
     public void BuildReadWord_4E_Frame()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -522,7 +522,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("4E 帧 ASCII 模式编解码 Round-trip")]
+    [DisplayName("4E frame ASCII mode round-trip")]
     public void BuildReadWord_4E_Ascii_RoundTrip()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -546,7 +546,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("4E 帧与 3E 帧序列化长度差异")]
+    [DisplayName("4E vs 3E frame serialized length difference")]
     public void Frame4E_Length_Differs_From_3E()
     {
         var msg3E = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -564,7 +564,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("4E 帧响应解析 验证子头 D400h 和序列号")]
+    [DisplayName("4E frame response parsing verifies sub-header D400h and sequence number")]
     public void Response_4E_Parse()
     {
         // 4E 프레임 응답 바이너리 데이터 구성
@@ -601,7 +601,7 @@ public class MCMessageTests
     }
 
     [Fact]
-    [DisplayName("4E 帧响应 Write/Read Round-trip")]
+    [DisplayName("4E frame response Write/Read round-trip")]
     public void Response_4E_RoundTrip()
     {
         var response = new MCResponse

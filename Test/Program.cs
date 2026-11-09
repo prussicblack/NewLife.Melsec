@@ -50,16 +50,16 @@ XTrace.UseConsole();
 // Console.WriteLine(pt.Serial.IsOpen);
 // Console.ReadLine();
 
-Console.WriteLine("请选择协议：");
-Console.WriteLine("1、MCQna3E");
-Console.WriteLine("2、FxLinks485");
+Console.WriteLine("Select protocol:");
+Console.WriteLine("1. MCQna3E");
+Console.WriteLine("2. FxLinks485");
 
 var mode = Console.ReadLine();
 var pm = new MelsecParameter();
 
 if (mode == "1")
 {
-    Console.WriteLine("服务端地址默认为：127.0.0.1:6000，保持默认请回车开始连接，否则请输入服务端地址：");
+    Console.WriteLine("Default server address: 127.0.0.1:6000. Press Enter to connect with the default, or enter the server address:");
     var address = Console.ReadLine();
 
     if (address == null || address == "") address = "127.0.0.1:6000";
@@ -70,11 +70,11 @@ if (mode == "1")
 else if (mode == "2")
 {
     var ps = SerialTransport.GetPortNames();
-    Console.WriteLine("请选择串口：");
+    Console.WriteLine("Select serial port:");
 
     for (var i = 0; i < ps.Length; i++)
     {
-        Console.WriteLine($"{i}、{ps[i]}");
+        Console.WriteLine($"{i}. {ps[i]}");
     }
 
     var idx = Int32.Parse(Console.ReadLine());
@@ -92,11 +92,11 @@ var node = driver.Open(null, pm);
 // 두 개 채널 오픈 테스트
 node = driver.Open(null, pm);
 
-if (mode == "1") Console.WriteLine($"连接成功=>{pm.Address}！");
-else Console.WriteLine($"连接成功=>{pm.PortName}！");
+if (mode == "1") Console.WriteLine($"Connected => {pm.Address}!");
+else Console.WriteLine($"Connected => {pm.PortName}!");
 
 
-Console.WriteLine("请输入整数值，按q退出：");
+Console.WriteLine("Enter an integer, press q to exit:");
 
 
 var str = Console.ReadLine();
@@ -121,14 +121,14 @@ do
     // point.Address = "Y" + str;
     // 읽기
     var dic = driver.Read(node, new[] { point });
-    Console.WriteLine($"读取结果1：{dic.ToJson()}");
+    Console.WriteLine($"Read result 1: {dic.ToJson()}");
 
     var data1 = dic[point.Name] as Byte[];
 
     //Console.WriteLine($"읽기 결과: {BitConverter.ToInt32(data1)}");
-    Console.WriteLine($"读取结果：{data1.ToHex()}");
+    Console.WriteLine($"Read result: {data1.ToHex()}");
     Console.WriteLine($"");
-    Console.WriteLine("请输入整数值，按q退出：");
+    Console.WriteLine("Enter an integer, press q to exit:");
 
 } while ((str = Console.ReadLine()) != "q");
 

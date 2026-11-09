@@ -51,15 +51,15 @@ public class MCException : Exception
         var known = (MCEndCode)code;
         return known switch
         {
-            MCEndCode.Success => "正常",
-            MCEndCode.PlcRunning => $"0x{code:X4} PLC正在运行，无法执行请求",
-            MCEndCode.AddressOutOfRange => $"0x{code:X4} 软元件地址超范围",
-            MCEndCode.CommandError => $"0x{code:X4} 命令或子命令错误",
-            MCEndCode.PointCountError => $"0x{code:X4} 读写点数超出范围",
-            MCEndCode.DataLengthError => $"0x{code:X4} 请求数据长度不匹配",
-            MCEndCode.CpuBusy => $"0x{code:X4} CPU忙，请稍后重试",
-            MCEndCode.Timeout => $"0x{code:X4} 通信超时",
-            _ => $"0x{code:X4} MC协议错误",
+            MCEndCode.Success => "OK",
+            MCEndCode.PlcRunning => $"0x{code:X4} PLC is running, cannot execute request",
+            MCEndCode.AddressOutOfRange => $"0x{code:X4} Device address out of range",
+            MCEndCode.CommandError => $"0x{code:X4} Command or sub-command error",
+            MCEndCode.PointCountError => $"0x{code:X4} Read/write point count out of range",
+            MCEndCode.DataLengthError => $"0x{code:X4} Request data length mismatch",
+            MCEndCode.CpuBusy => $"0x{code:X4} CPU busy, please retry later",
+            MCEndCode.Timeout => $"0x{code:X4} Communication timeout",
+            _ => $"0x{code:X4} MC protocol error",
         };
     }
 }

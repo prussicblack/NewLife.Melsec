@@ -130,7 +130,7 @@ public static class DeviceCodeHelper
             }
         }
 
-        throw new NotSupportedException($"不支持的MC协议软元件地址格式：{address}");
+        throw new NotSupportedException($"Unsupported MC protocol device address format: {address}");
     }
 
     private static Int32 ParseNum(String s, Boolean isHex) =>

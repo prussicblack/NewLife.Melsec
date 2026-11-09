@@ -16,7 +16,7 @@ namespace NewLife.Melsec.Drivers;
 /// IDriver 인터페이스를 구현하여 NewLife.IoT 플랫폼 및 ZeroIoT/IoTEdge 게이트웨이에 시ーム리스하게 연동.
 /// </remarks>
 [Driver("MelsecMC")]
-[DisplayName("三菱MC以太网")]
+[DisplayName("Mitsubishi MC Ethernet")]
 public class MCDriver : DriverBase
 {
     #region 속성
@@ -47,7 +47,7 @@ public class MCDriver : DriverBase
         using var span = Tracer?.NewSpan("mc:Open", parameter.ToJson());
 
         var p = parameter as MCParameter;
-        if (p == null) throw new ArgumentException($"参数不合法：{parameter.ToJson()}");
+        if (p == null) throw new ArgumentException($"Invalid parameter: {parameter.ToJson()}");
 
         var node = new MelsecNode
         {
@@ -187,7 +187,7 @@ public class MCDriver : DriverBase
                 else
                 {
                     var words = ConvertToWords(value, point, n.Device?.Specification);
-                    if (words == null) throw new NotSupportedException($"点位[{point.Name}]不支持数据[{value}]");
+                    if (words == null) throw new NotSupportedException($"Point [{point.Name}] does not support data [{value}]");
                     Link.WriteWords(devCode, addr, words);
                 }
             }
@@ -393,7 +393,7 @@ public class MCDriver : DriverBase
     public async Task<ReadResult> ReadTagAsync(INode node, String tag, CancellationToken cancellationToken = default)
     {
         if (!TagMap.TryGetValue(tag, out var address))
-            throw new ArgumentException($"标签 [{tag}] 未在 TagMap 中定义", nameof(tag));
+            throw new ArgumentException($"Tag [{tag}] is not defined in TagMap", nameof(tag));
 
         IPoint point = new PointModel
         {
@@ -412,7 +412,7 @@ public class MCDriver : DriverBase
     public async Task WriteTagAsync(INode node, String tag, Object value, CancellationToken cancellationToken = default)
     {
         if (!TagMap.TryGetValue(tag, out var address))
-            throw new ArgumentException($"标签 [{tag}] 未在 TagMap 中定义", nameof(tag));
+            throw new ArgumentException($"Tag [{tag}] is not defined in TagMap", nameof(tag));
 
         IPoint point = new PointModel
         {

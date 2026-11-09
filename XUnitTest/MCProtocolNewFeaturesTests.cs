@@ -13,7 +13,7 @@ public class MCProtocolNewFeaturesTests
     #region 랜덤 읽기 (Random Read)
 
     [Fact]
-    [DisplayName("ReadRandomWords 构建请求数据格式正确")]
+    [DisplayName("ReadRandomWords builds correct request data format")]
     public void BuildRandomReadRequestData_Format()
     {
         // 리플렉션으로 비공개 메서드를 호출해 데이터 형식 검증
@@ -59,7 +59,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("ReadRandomBits 返回正确点数")]
+    [DisplayName("ReadRandomBits returns correct point count")]
     public void ReadRandomBits_Count_Matches()
     {
         var items = new (DeviceCode, Int32)[]
@@ -75,7 +75,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("随机读取序列化-反序列化 Round-trip")]
+    [DisplayName("Random read serialization-deserialization round-trip")]
     public void RandomRead_ToBytes_Consistent()
     {
         var items = new (DeviceCode, Int32)[]
@@ -107,7 +107,7 @@ public class MCProtocolNewFeaturesTests
     #region 원격 제어 (RUN/STOP)
 
     [Fact]
-    [DisplayName("RemoteRun 构建请求帧正确")]
+    [DisplayName("RemoteRun builds correct request frame")]
     public void RemoteRun_ToBytes_Format()
     {
         var msg = new MCMessage
@@ -128,7 +128,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("RemoteStop 构建请求帧正确")]
+    [DisplayName("RemoteStop builds correct request frame")]
     public void RemoteStop_ToBytes_Format()
     {
         var msg = new MCMessage
@@ -155,7 +155,7 @@ public class MCProtocolNewFeaturesTests
     #region 시리얼 포트 전송 (MC-15)
 
     [Fact]
-    [DisplayName("Serial 模式默认属性值正确")]
+    [DisplayName("Serial mode default property values correct")]
     public void SerialMode_DefaultProperties()
     {
         var protocol = new MCProtocol
@@ -171,7 +171,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("Serial 模式 3E 帧序列化与 TCP 一致")]
+    [DisplayName("Serial mode 3E frame serialization matches TCP")]
     public void SerialMode_3EFrame_SameAsTcp()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -185,7 +185,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("Serial 模式 1E 帧序列化与 3E 一致")]
+    [DisplayName("Serial mode 1E frame serialization matches 3E")]
     public void SerialMode_1EFrame_Matches3E()
     {
         var msg = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 100, 4);
@@ -199,7 +199,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("MC-15 串口参数可通过属性配置")]
+    [DisplayName("MC-15 serial parameters configurable via properties")]
     public void SerialMode_Configurable()
     {
         var protocol = new MCProtocol
@@ -226,7 +226,7 @@ public class MCProtocolNewFeaturesTests
     #region UDP 전송
 
     [Fact]
-    [DisplayName("MCTransportMode 枚举默认值")]
+    [DisplayName("MCTransportMode enum default values")]
     public void TransportMode_Default_IsTcp()
     {
         var protocol = new MCProtocol();
@@ -234,7 +234,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("UDP 模式 3E 帧序列化与 TCP 一致")]
+    [DisplayName("UDP mode 3E frame serialization matches TCP")]
     public void UdpMode_3EFrame_SameAsTcp()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -252,7 +252,7 @@ public class MCProtocolNewFeaturesTests
     #region RawRequestData 직렬화
 
     [Fact]
-    [DisplayName("RawRequestData 影响数据长度计算")]
+    [DisplayName("RawRequestData affects data length calculation")]
     public void RawRequestData_AffectsDataLength()
     {
         var msg = new MCMessage
@@ -271,7 +271,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("无 RawRequestData 时使用标准序列化")]
+    [DisplayName("Standard serialization used when no RawRequestData")]
     public void WithoutRawRequestData_UsesStandardSerialization()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -312,7 +312,7 @@ public class MCProtocolNewFeaturesTests
     #region 원격 비밀번호 잠금 (Remote Password Lock)
 
     [Fact]
-    [DisplayName("远程密码解锁请求 1630h 数据格式正确")]
+    [DisplayName("Remote password unlock request 1630h data format correct")]
     public void RemoteUnlock_RequestFormat()
     {
         var raw = InvokeBuildPasswordRequestData("pass");
@@ -330,7 +330,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("远程密码解锁/锁定 通过 MCMessage 构建完整帧")]
+    [DisplayName("Remote password unlock/lock builds full frame via MCMessage")]
     public void RemoteUnlock_FullFrame()
     {
         // MCMessage를 통해 RemoteUnlock 명령 전송을 목 처리
@@ -361,7 +361,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("远程锁定命令 1631h 与解锁命令区分")]
+    [DisplayName("Remote lock command 1631h distinguished from unlock")]
     public void RemoteLock_Command_Differs_From_Unlock()
     {
         var raw = InvokeBuildPasswordRequestData("pass");
@@ -394,7 +394,7 @@ public class MCProtocolNewFeaturesTests
     #region 모니터링 등록 (Monitor Registration)
 
     [Fact]
-    [DisplayName("监视注册 0801h 请求数据格式正确")]
+    [DisplayName("Monitor registration 0801h request data format correct")]
     public void MonitorRegist_RequestFormat()
     {
         var wordDevices = new (DeviceCode, Int32)[]
@@ -444,7 +444,7 @@ public class MCProtocolNewFeaturesTests
     }
 
     [Fact]
-    [DisplayName("监视注册通过 MCMessage 构建完整帧")]
+    [DisplayName("Monitor registration builds full frame via MCMessage")]
     public void MonitorRegist_FullFrame()
     {
         var wordDevices = new (DeviceCode, Int32)[] { (DeviceCode.D, 0) };

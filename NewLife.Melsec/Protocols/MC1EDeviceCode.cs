@@ -85,7 +85,7 @@ public static class MC1EDeviceCodeHelper
         DeviceCode.CS => MC1EDeviceCode.CS,
         DeviceCode.SM => MC1EDeviceCode.SM,
         DeviceCode.SD => MC1EDeviceCode.SD,
-        _ => throw new NotSupportedException($"不支持的软元件代码 0x{(Byte)code:X2}，仅 A 系列兼容子集可用"),
+        _ => throw new NotSupportedException($"Unsupported device code 0x{(Byte)code:X2}, only the A-series compatible subset is available"),
     };
 
     /// <summary>1E 프레임 MC1EDeviceCode를 3E 프레임 DeviceCode로 역매핑</summary>
@@ -106,6 +106,6 @@ public static class MC1EDeviceCodeHelper
         MC1EDeviceCode.CS => DeviceCode.CS,
         MC1EDeviceCode.SM => DeviceCode.SM,
         MC1EDeviceCode.SD => DeviceCode.SD,
-        _ => throw new NotSupportedException($"不支持的 1E 软元件代码 0x{(Byte)code:X2}"),
+        _ => throw new NotSupportedException($"Unsupported 1E device code 0x{(Byte)code:X2}"),
     };
 }

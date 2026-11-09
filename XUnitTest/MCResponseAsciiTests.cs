@@ -16,7 +16,7 @@ public class MCResponseAsciiTests
         Encoding.ASCII.GetBytes(binary.ToHex());
 
     [Fact]
-    [DisplayName("ASCII 读字成功响应解析")]
+    [DisplayName("ASCII ReadWord success response parsing")]
     public void Read_WordResponse_Success_Ascii()
     {
         // 바이너리 프레임: D0-00-00-FF-FF-03-00-0A-00-00-00-11-00-22-00-33-00-44-00
@@ -40,7 +40,7 @@ public class MCResponseAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 读位成功响应解析")]
+    [DisplayName("ASCII ReadBit success response parsing")]
     public void Read_BitResponse_Success_Ascii()
     {
         // 비트 응답 M0×8: [ON, OFF, ON, OFF, ON, OFF, ON, OFF]
@@ -69,7 +69,7 @@ public class MCResponseAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 错误响应解析")]
+    [DisplayName("ASCII error response parsing")]
     public void Read_ErrorResponse_Ascii()
     {
         // 종료 코드 0x0050 = 통신 타임아웃 등 오류
@@ -87,7 +87,7 @@ public class MCResponseAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 写入成功响应解析")]
+    [DisplayName("ASCII write success response parsing")]
     public void Read_WriteResponse_Success_Ascii()
     {
         // 쓰기 응답은 ACK만 있고 데이터 없음: 종료 코드 0x0000
@@ -105,7 +105,7 @@ public class MCResponseAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 响应 Round-trip")]
+    [DisplayName("ASCII response round-trip")]
     public void WriteRead_RoundTrip_Ascii()
     {
         var original = new MCResponse
@@ -124,7 +124,7 @@ public class MCResponseAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 模式 D000 子头校验")]
+    [DisplayName("ASCII mode D000 sub-header check")]
     public void Read_InvalidSubHeader_ReturnsFalse_Ascii()
     {
         // 잘못된 서브헤드 "E000" 사용

@@ -10,7 +10,7 @@ namespace XUnitTest;
 public class SLMPTests
 {
     [Fact]
-    [DisplayName("SLMP 读字请求与 MC 3E 二进制帧一致")]
+    [DisplayName("SLMP ReadWord request matches MC 3E binary frame")]
     public void ReadWord_Matches_MC3E()
     {
         // SLMP 3C 프레임은 MC 3E 바이너리 프레임과 완전히 동일한 바이트를 생성해야 한다
@@ -24,7 +24,7 @@ public class SLMPTests
     }
 
     [Fact]
-    [DisplayName("SLMP 读位请求 Round-trip")]
+    [DisplayName("SLMP ReadBit request round-trip")]
     public void ReadBit_RoundTrip()
     {
         var original = SLMPMessage.BuildReadBit(SLMPDeviceCode.M, 200, 8);
@@ -38,7 +38,7 @@ public class SLMPTests
     }
 
     [Fact]
-    [DisplayName("SLMP 写字请求 Round-trip")]
+    [DisplayName("SLMP WriteWord request round-trip")]
     public void WriteWord_RoundTrip()
     {
         var original = SLMPMessage.BuildWriteWord(SLMPDeviceCode.D, 100, new UInt16[] { 1, 2, 3 });
@@ -53,7 +53,7 @@ public class SLMPTests
     }
 
     [Fact]
-    [DisplayName("SLMP 读字响应解析")]
+    [DisplayName("SLMP ReadWord response parsing")]
     public void ReadWordResponse()
     {
         var response = SLMPResponse.BuildWordResponse(new UInt16[] { 0x0011, 0x0022, 0x0033, 0x0044 });
@@ -64,7 +64,7 @@ public class SLMPTests
     }
 
     [Fact]
-    [DisplayName("SLMP 协议码与 MC 3E 兼容")]
+    [DisplayName("SLMP protocol codes compatible with MC 3E")]
     public void DeviceCode_Compatible()
     {
         Assert.Equal((Byte)SLMPDeviceCode.D, (Byte)DeviceCode.D);

@@ -9,7 +9,7 @@ namespace XUnitTest;
 public class MCTypeConversionTests
 {
     [Fact]
-    [DisplayName("ReadInt32 转换：2字 → Int32")]
+    [DisplayName("ReadInt32 conversion: 2 words → Int32")]
     public void ReadInt32_Conversion()
     {
         // Int32 123456 = 0x0001E240, LE words: [0xE240, 0x0001]
@@ -19,7 +19,7 @@ public class MCTypeConversionTests
     }
 
     [Fact]
-    [DisplayName("ReadUInt32 转换：2字 → UInt32")]
+    [DisplayName("ReadUInt32 conversion: 2 words → UInt32")]
     public void ReadUInt32_Conversion()
     {
         var words = new UInt16[] { 0x5678, 0x1234 };
@@ -28,7 +28,7 @@ public class MCTypeConversionTests
     }
 
     [Fact]
-    [DisplayName("ReadSingle 转换：2字 → Float")]
+    [DisplayName("ReadSingle conversion: 2 words → Float")]
     public void ReadSingle_Conversion()
     {
         // 3.14f = 0x4048F5C3, LE words: [0xF5C3, 0x4048]
@@ -39,7 +39,7 @@ public class MCTypeConversionTests
     }
 
     [Fact]
-    [DisplayName("ReadDouble 转换：4字 → Double")]
+    [DisplayName("ReadDouble conversion: 4 words → Double")]
     public void ReadDouble_Conversion()
     {
         // 1.0 = 0x3FF0000000000000, LE 4 words: [0x0000, 0x0000, 0x0000, 0x3FF0]
@@ -58,7 +58,7 @@ public class MCTypeConversionTests
     }
 
     [Fact]
-    [DisplayName("ReadString 转换：2字 → ASCII")]
+    [DisplayName("ReadString conversion: 2 words → ASCII")]
     public void ReadString_Conversion()
     {
         // "Hi" = 0x6948 (H=0x48, i=0x69), LE word: [0x6948]

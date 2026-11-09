@@ -14,7 +14,7 @@ namespace NewLife.Melsec.Drivers;
 /// 미쓰비시 PLC 드라이버
 /// </summary>
 [Driver("MelsecPLC")]
-[DisplayName("三菱PLC")]
+[DisplayName("Mitsubishi PLC")]
 public class MelsecDriver : DriverBase
 {
     private IReadWriteNet _plcNet;
@@ -42,7 +42,7 @@ public class MelsecDriver : DriverBase
     /// <returns></returns>
     public virtual String GetAddress(IPoint point)
     {
-        if (point == null) throw new ArgumentException("点位信息不能为空！");
+        if (point == null) throw new ArgumentException("Point info cannot be empty!");
 
         // 콜론 이후의 비트 필드 제거
         var addr = point.Address;
@@ -62,7 +62,7 @@ public class MelsecDriver : DriverBase
     {
         var pm = JsonHelper.Convert<MelsecParameter>(parameters);
 
-        if (pm == null) throw new ArgumentException($"参数不合法：{parameters.ToJson()}");
+        if (pm == null) throw new ArgumentException($"Invalid parameter: {parameters.ToJson()}");
 
         MelsecNode node;
         String ipAddress;
@@ -71,10 +71,10 @@ public class MelsecDriver : DriverBase
         if (pm.Protocol == Protocol.MCQna3E)
         {
             var address = pm.Address;
-            if (address.IsNullOrEmpty()) throw new ArgumentException("参数中未指定地址address");
+            if (address.IsNullOrEmpty()) throw new ArgumentException("Address is not specified in parameter");
 
             var p = address.IndexOf(':');
-            if (p < 0) throw new ArgumentException($"参数中地址address格式错误:{address}");
+            if (p < 0) throw new ArgumentException($"Invalid address format in parameter: {address}");
 
 
 
@@ -89,7 +89,7 @@ public class MelsecDriver : DriverBase
         }
         else
         {
-            if (pm.PortName.IsNullOrEmpty()) throw new ArgumentException("参数中未指定串口名称PortName");
+            if (pm.PortName.IsNullOrEmpty()) throw new ArgumentException("Serial port name is not specified in parameter");
 
             node = new MelsecNode
             {
@@ -134,7 +134,7 @@ public class MelsecDriver : DriverBase
 
                         var connect = plcNet.ConnectServer();
 
-                        if (!connect.IsSuccess) throw new Exception($"连接失败：{connect.Message}");
+                        if (!connect.IsSuccess) throw new Exception($"Connection failed: {connect.Message}");
                     }
                     else
                     {
@@ -161,7 +161,7 @@ public class MelsecDriver : DriverBase
                         melsecSerial.Format = 1;
 
                         var connect = melsecSerial.Open();
-                        if (!connect.IsSuccess) throw new Exception($"连接失败：{connect.Message}");
+                        if (!connect.IsSuccess) throw new Exception($"Connection failed: {connect.Message}");
                     }
 
                 }
@@ -209,9 +209,9 @@ public class MelsecDriver : DriverBase
             if (!data.IsSuccess)
             {
                 var r = _plcNet.ReadUInt16(addr);
-                XTrace.WriteLine($"读取数据：{addr}={r.ToJson()}");
+                XTrace.WriteLine($"Read data: {addr}={r.ToJson()}");
             }
-            if (!data.IsSuccess) throw new Exception($"读取数据失败：{data.ToJson()}");
+            if (!data.IsSuccess) throw new Exception($"Failed to read data: {data.ToJson()}");
 
 
 
@@ -239,7 +239,7 @@ public class MelsecDriver : DriverBase
             Boolean v3 => _plcNet.Write(addr, v3),
             Byte[] v4 => _plcNet.Write(addr, v4),
             Byte v5 => _plcNet.Write(addr, v5),
-            _ => throw new ArgumentException("暂不支持写入该类型数据！"),
+            _ => throw new ArgumentException("Writing this data type is not supported yet!"),
         };
         return res;
     }

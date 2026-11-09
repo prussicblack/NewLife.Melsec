@@ -13,7 +13,7 @@ public class MCMessageAsciiTests
     #region BuildReadWord
 
     [Fact]
-    [DisplayName("ASCII 读字请求 D100×4 编码验证")]
+    [DisplayName("ASCII ReadWord request D100×4 encoding")]
     public void BuildReadWord_D100_4Words_Ascii()
     {
         // 먼저 바이너리 모드 메시지를 만들어 바이너리 바이트를 얻은 뒤, ASCII 모드가 그와 동일한지 검증
@@ -30,7 +30,7 @@ public class MCMessageAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 读字请求 Round-trip")]
+    [DisplayName("ASCII ReadWord request round-trip")]
     public void BuildReadWord_RoundTrip_Ascii()
     {
         var original = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -52,7 +52,7 @@ public class MCMessageAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 读字请求属性验证")]
+    [DisplayName("ASCII ReadWord request properties")]
     public void BuildReadWord_Properties_Ascii()
     {
         var msg = MCMessage.BuildReadWord(DeviceCode.D, 100, 4);
@@ -72,7 +72,7 @@ public class MCMessageAsciiTests
     #region BuildReadBit
 
     [Fact]
-    [DisplayName("ASCII 读位请求 M200×8 编码验证")]
+    [DisplayName("ASCII ReadBit request M200×8 encoding")]
     public void BuildReadBit_M200_8Bits_Ascii()
     {
         var binaryMsg = MCMessage.BuildReadBit(DeviceCode.M, 200, 8);
@@ -87,7 +87,7 @@ public class MCMessageAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 读位请求 Round-trip")]
+    [DisplayName("ASCII ReadBit request round-trip")]
     public void BuildReadBit_RoundTrip_Ascii()
     {
         var original = MCMessage.BuildReadBit(DeviceCode.M, 200, 16);
@@ -109,7 +109,7 @@ public class MCMessageAsciiTests
     #region BuildWriteWord
 
     [Fact]
-    [DisplayName("ASCII 写字请求 D100 写入3个字 编码验证")]
+    [DisplayName("ASCII WriteWord request D100 write 3 words encoding")]
     public void BuildWriteWord_D100_3Values_Ascii()
     {
         var binaryMsg = MCMessage.BuildWriteWord(DeviceCode.D, 100, new UInt16[] { 1, 2, 3 });
@@ -124,7 +124,7 @@ public class MCMessageAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 写字请求 Round-trip")]
+    [DisplayName("ASCII WriteWord request round-trip")]
     public void BuildWriteWord_RoundTrip_Ascii()
     {
         var original = MCMessage.BuildWriteWord(DeviceCode.D, 100, new UInt16[] { 1, 2, 3 });
@@ -147,7 +147,7 @@ public class MCMessageAsciiTests
     #region BuildWriteBit
 
     [Fact]
-    [DisplayName("ASCII 写位请求 编码验证")]
+    [DisplayName("ASCII WriteBit request encoding")]
     public void BuildWriteBit_Y0_4Bits_Ascii()
     {
         // Y0=0x9D, addr=0, count=4, values=[1,0,1,0]
@@ -172,7 +172,7 @@ public class MCMessageAsciiTests
     #region 경계 상황
 
     [Fact]
-    [DisplayName("ASCII 模式非 5000 子头应返回 false")]
+    [DisplayName("ASCII mode non-5000 sub-header returns false")]
     public void Read_InvalidSubHeader_ReturnsFalse_Ascii()
     {
         // 잘못된 서브헤드 "6000" 사용, 나머지 바이트는 유효 프레임으로 채움
@@ -186,7 +186,7 @@ public class MCMessageAsciiTests
     }
 
     [Fact]
-    [DisplayName("ASCII 与二进制模式产生等价的帧内容")]
+    [DisplayName("ASCII and binary modes produce equivalent frame content")]
     public void AsciiAndBinary_EquivalentContent()
     {
         // ASCII와 바이너리 모드는 동일한 필드 값을 가져야 한다

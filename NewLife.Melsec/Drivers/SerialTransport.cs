@@ -349,7 +349,7 @@ public class SerialTransport : DisposeBase, ITransport
         // 포트가 더 이상 없으면 연결을 끊자
         if (!SerialPort.GetPortNames().Contains(PortName))
         {
-            WriteLog("串口{0}已经不存在，准备关闭！", PortName);
+            WriteLog("Serial port {0} no longer exists, closing!", PortName);
 
             //OnDisconnect();
             Close();
@@ -438,14 +438,14 @@ public class SerialTransport : DisposeBase, ITransport
         var ns = GetNames();
         if (ns.Count == 0)
         {
-            Console.WriteLine("没有可用串口！");
+            Console.WriteLine("No available serial ports!");
             return null;
         }
 
         var name = "";
         var des = "";
 
-        Console.WriteLine("可用串口：");
+        Console.WriteLine("Available serial ports:");
         Console.ForegroundColor = ConsoleColor.Green;
         foreach (var item in ns)
         {
@@ -470,11 +470,11 @@ public class SerialTransport : DisposeBase, ITransport
         while (true)
         {
             Console.ResetColor();
-            Console.Write("请输入串口名称（默认 ");
+            Console.Write("Enter serial port name (default ");
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("{0}", name);
             Console.ResetColor();
-            Console.Write("）：");
+            Console.Write("): ");
 
             var str = Console.ReadLine();
             if (str.IsNullOrEmpty()) break;
@@ -489,7 +489,7 @@ public class SerialTransport : DisposeBase, ITransport
         }
 
         Console.WriteLine();
-        Console.Write("正在打开串口 ");
+        Console.Write("Opening serial port ");
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("{0}({1})", name, des);
 

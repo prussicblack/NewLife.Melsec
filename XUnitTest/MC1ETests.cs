@@ -12,7 +12,7 @@ public class MC1ETests
     #region MC1EMessage 요청 프레임 인코딩
 
     [Fact]
-    [DisplayName("1E 读字请求 D100×4 编码")]
+    [DisplayName("1E ReadWord request D100×4 encoding")]
     public void BuildReadWord_D100_4Words()
     {
         // A 시리즈 1E 프레임: D100부터 4개의 워드 읽기
@@ -27,7 +27,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 读字请求字段属性")]
+    [DisplayName("1E ReadWord request field properties")]
     public void BuildReadWord_Properties()
     {
         var msg = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 100, 4);
@@ -40,7 +40,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 读字请求 Round-trip")]
+    [DisplayName("1E ReadWord request round-trip")]
     public void BuildReadWord_RoundTrip()
     {
         var original = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 100, 4);
@@ -57,7 +57,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 读位请求 M200×8 编码")]
+    [DisplayName("1E ReadBit request M200×8 encoding")]
     public void BuildReadBit_M200_8Bits()
     {
         // M=0x10, addr=200=0x00C8, count=8
@@ -71,7 +71,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 读位请求 Round-trip")]
+    [DisplayName("1E ReadBit request round-trip")]
     public void BuildReadBit_RoundTrip()
     {
         var original = MC1EMessage.BuildReadBit(MC1EDeviceCode.M, 200, 16);
@@ -87,7 +87,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 写字请求 D100 写入3个字 编码")]
+    [DisplayName("1E WriteWord request D100 write 3 words encoding")]
     public void BuildWriteWord_D100_3Values()
     {
         // 서브헤드(0x02=워드 쓰기) + 데이터 [01,00,02,00,03,00]
@@ -106,7 +106,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 写位请求 编码")]
+    [DisplayName("1E WriteBit request encoding")]
     public void BuildWriteBit_Y0_4Bits()
     {
         var msg = MC1EMessage.BuildWriteBit(MC1EDeviceCode.Y, 0, new UInt16[] { 1, 0, 1, 0 });
@@ -126,7 +126,7 @@ public class MC1ETests
     #region MC1EResponse 응답 파싱
 
     [Fact]
-    [DisplayName("1E 读字成功响应解析")]
+    [DisplayName("1E ReadWord success response parsing")]
     public void ReadWordResponse_Success()
     {
         // 응답: 서브헤드(0x00) + 종료 코드(0x00) + 데이터(1100 2200 3300 4400)
@@ -146,7 +146,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 读位成功响应解析")]
+    [DisplayName("1E ReadBit success response parsing")]
     public void ReadBitResponse_Success()
     {
         // 비트 응답 M0×8: [ON, OFF, ON, OFF, ON, OFF, ON, OFF]
@@ -170,7 +170,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 错误响应解析")]
+    [DisplayName("1E error response parsing")]
     public void Read_ErrorResponse()
     {
         // 서브헤드 0x80=읽기 오류, 종료 코드 0x50=오류
@@ -185,7 +185,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 写入成功响应解析")]
+    [DisplayName("1E write success response parsing")]
     public void Read_WriteResponse_Success()
     {
         // 서브헤드 0x00=쓰기 성공, 종료 코드 0x00
@@ -200,7 +200,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 响应 Round-trip")]
+    [DisplayName("1E response round-trip")]
     public void WriteRead_RoundTrip()
     {
         var original = new MC1EResponse
@@ -223,7 +223,7 @@ public class MC1ETests
     #region 디바이스 코드 매핑
 
     [Fact]
-    [DisplayName("DeviceCode 3E→1E 映射验证")]
+    [DisplayName("DeviceCode 3E→1E mapping verification")]
     public void DeviceCode_Mapping_3E_to_1E()
     {
         Assert.Equal(MC1EDeviceCode.D, MC1EDeviceCodeHelper.From3E(DeviceCode.D));
@@ -233,7 +233,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("DeviceCode 1E→3E 映射验证")]
+    [DisplayName("DeviceCode 1E→3E mapping verification")]
     public void DeviceCode_Mapping_1E_to_3E()
     {
         Assert.Equal(DeviceCode.D, MC1EDeviceCodeHelper.To3E(MC1EDeviceCode.D));
@@ -241,7 +241,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("IsBitDevice 判定")]
+    [DisplayName("IsBitDevice check")]
     public void IsBitDevice_Check()
     {
         Assert.True(MC1EDeviceCodeHelper.IsBitDevice(MC1EDeviceCode.M));
@@ -256,7 +256,7 @@ public class MC1ETests
     #region 경계 상황
 
     [Fact]
-    [DisplayName("1E 空数据返回 false")]
+    [DisplayName("1E null data returns false")]
     public void Read_NullData_ReturnsFalse()
     {
         var msg = new MC1EMessage();
@@ -267,7 +267,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 短数据返回 false")]
+    [DisplayName("1E short data returns false")]
     public void Read_ShortData_ReturnsFalse()
     {
         var msg = new MC1EMessage();
@@ -275,7 +275,7 @@ public class MC1ETests
     }
 
     [Fact]
-    [DisplayName("1E 地址上限 16 位验证")]
+    [DisplayName("1E address 16-bit limit verification")]
     public void Address_Max16Bit()
     {
         var msg = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 0xFFFF, 1);

@@ -12,23 +12,23 @@ namespace NewLife.Melsec.Drivers
     public class SerialPortConfig : XmlConfig<SerialPortConfig>
     {
         /// <summary>시리얼 포트 이름</summary>
-        [Description("串口名")]
+        [Description("Serial port name")]
         public String PortName { get; set; } = "COM1";
 
         /// <summary>보우레이트</summary>
-        [Description("波特率")]
+        [Description("Baud rate")]
         public Int32 BaudRate { get; set; } = 9600;
 
         /// <summary>데이터 비트</summary>
-        [Description("数据位")]
+        [Description("Data bits")]
         public Int32 DataBits { get; set; } = 8;
 
         /// <summary>스톱 비트</summary>
-        [Description("停止位 None/One/Two/OnePointFive")]
+        [Description("Stop bits: None/One/Two/OnePointFive")]
         public StopBits StopBits { get; set; } = StopBits.One;
 
         /// <summary>패리티</summary>
-        [Description("奇偶校验 None/Odd/Even/Mark/Space")]
+        [Description("Parity: None/Odd/Even/Mark/Space")]
         public Parity Parity { get; set; } = Parity.None;
 
         /// <summary>텍스트 인코딩</summary>
@@ -36,27 +36,27 @@ namespace NewLife.Melsec.Drivers
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 
         /// <summary>인코딩</summary>
-        [Description("编码 gb2312/us-ascii/utf-8")]
+        [Description("Encoding: gb2312/us-ascii/utf-8")]
         public String WebEncoding { get { return Encoding.WebName; } set { Encoding = Encoding.GetEncoding(value); } }
 
         /// <summary>16진수 표시</summary>
-        [Description("十六进制显示")]
+        [Description("Hex display")]
         public Boolean HexShow { get; set; }
 
         /// <summary>16진수 자동 줄바꿈</summary>
-        [Description("十六进制自动换行")]
+        [Description("Hex auto wrap")]
         public Boolean HexNewLine { get; set; }
 
         /// <summary>16진수 전송</summary>
-        [Description("十六进制发送")]
+        [Description("Hex send")]
         public Boolean HexSend { get; set; }
 
         /// <summary>마지막 업데이트 시각</summary>
-        [Description("最后更新时间")]
+        [Description("Last update time")]
         public DateTime LastUpdate { get; set; }
 
         /// <summary>확장 데이터</summary>
-        [Description("扩展数据")]
+        [Description("Extended data")]
         public String Extend { get; set; } = "";
         /// <summary>DtrEnable</summary>
         [Description("DtrEnable")]

@@ -122,7 +122,7 @@ public class MCIntegrationTests : IDisposable
     #region MCProtocol 통합 테스트
 
     [Fact]
-    [DisplayName("ReadWords D100×4 完整请求响应流程")]
+    [DisplayName("ReadWords D100×4 full request-response flow")]
     public void ReadWords_D100_4Words_EndToEnd()
     {
         UInt16[] expectedValues = [0x0011, 0x0022, 0x0033, 0x0044];
@@ -150,7 +150,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("ReadBits M200×8 完整请求响应流程")]
+    [DisplayName("ReadBits M200×8 full request-response flow")]
     public void ReadBits_M200_8Bits_EndToEnd()
     {
         Boolean[] expectedBits = [true, false, true, true, false, false, true, false];
@@ -171,7 +171,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("WriteWords D100 完整请求响应流程")]
+    [DisplayName("WriteWords D100 full request-response flow")]
     public void WriteWords_D100_EndToEnd()
     {
         UInt16[] valuesToWrite = [0x1234, 0xABCD];
@@ -197,7 +197,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("WriteBits M0 完整请求响应流程")]
+    [DisplayName("WriteBits M0 full request-response flow")]
     public void WriteBits_M0_EndToEnd()
     {
         Boolean[] bitsToWrite = [true, false, true];
@@ -215,7 +215,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("服务端返回错误码时 ReadWords 抛出 MCException")]
+    [DisplayName("ReadWords throws MCException when server returns error code")]
     public void ReadWords_ErrorResponse_ThrowsMCException()
     {
         SetHandler(_ => MCResponse.BuildErrorResponse(0xC056).ToBytes());
@@ -228,7 +228,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("断线后重连 再次 ReadWords 成功")]
+    [DisplayName("ReadWords succeeds again after reconnecting")]
     public void Reconnect_AfterDisconnect_ReadWordsSucceeds()
     {
         var callCount = 0;
@@ -263,7 +263,7 @@ public class MCIntegrationTests : IDisposable
     #region MCDriver E2E 테스트
 
     [Fact]
-    [DisplayName("MCDriver Read 通过真实 TCP 连接读取字软元件")]
+    [DisplayName("MCDriver Read word devices over a real TCP connection")]
     public void MCDriver_Read_WordDevices_EndToEnd()
     {
         UInt16[] serverValues = [0x0100, 0x0200, 0x0300];
@@ -292,7 +292,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("MCDriver Write 通过真实 TCP 连接写字软元件")]
+    [DisplayName("MCDriver Write word devices over a real TCP connection")]
     public void MCDriver_Write_WordDevice_EndToEnd()
     {
         SetHandler(_ => MCResponse.BuildWriteResponse().ToBytes());
@@ -311,7 +311,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("MCDriver 先读字D段再读位M段 两次请求均成功")]
+    [DisplayName("MCDriver reads word D then bit M, both requests succeed")]
     public void MCDriver_Read_MixedWordAndBit_EndToEnd()
     {
         // 서버가 요청 순서에 따라 다른 응답을 반환: 1회차에는 D 세그먼트 워드 데이터, 2회차에는 M 세그먼트 비트 데이터
@@ -353,7 +353,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("WriteWords 服务端返回错误码时抛出 MCException")]
+    [DisplayName("WriteWords throws MCException when server returns error code")]
     public void MCDriver_WriteWords_ErrorResponse_ThrowsMCException()
     {
         SetHandler(_ => MCResponse.BuildErrorResponse(0xC059).ToBytes());
@@ -366,7 +366,7 @@ public class MCIntegrationTests : IDisposable
     }
 
     [Fact]
-    [DisplayName("WriteBits 服务端返回错误码时抛出 MCException")]
+    [DisplayName("WriteBits throws MCException when server returns error code")]
     public void MCDriver_WriteBits_ErrorResponse_ThrowsMCException()
     {
         SetHandler(_ => MCResponse.BuildErrorResponse(0xC058).ToBytes());

@@ -104,7 +104,7 @@ public class MCProtocol : DisposeBase
         {
             if (_serialPort?.IsOpen == true) return;
 
-            var portName = Address ?? throw new InvalidOperationException("Address 未设置（串口模式需指定 COM 口）");
+            var portName = Address ?? throw new InvalidOperationException("Address is not set (serial mode requires a COM port)");
 
             _serialPort = new System.IO.Ports.SerialPort(portName, Baudrate, Parity, DataBits, StopBits)
             {
@@ -119,7 +119,7 @@ public class MCProtocol : DisposeBase
         {
             if (_udp != null) return;
 
-            var addr = Address ?? throw new InvalidOperationException("Address 未设置");
+            var addr = Address ?? throw new InvalidOperationException("Address is not set");
             var colonIdx = addr.LastIndexOf(':');
             var host = colonIdx > 0 ? addr[..colonIdx] : addr;
             var port = colonIdx > 0 ? Int32.Parse(addr[(colonIdx + 1)..]) : 6000;
@@ -134,7 +134,7 @@ public class MCProtocol : DisposeBase
         {
             if (_client?.Connected == true) return;
 
-            var addr = Address ?? throw new InvalidOperationException("Address 未设置");
+            var addr = Address ?? throw new InvalidOperationException("Address is not set");
             var colonIdx = addr.LastIndexOf(':');
             var host = colonIdx > 0 ? addr[..colonIdx] : addr;
             var port = colonIdx > 0 ? Int32.Parse(addr[(colonIdx + 1)..]) : 6000;
@@ -564,7 +564,7 @@ public class MCProtocol : DisposeBase
     public virtual void RemoteUnlock(String password)
     {
         if (password == null) throw new ArgumentNullException(nameof(password));
-        if (password.Length == 0) throw new ArgumentException("密码不能为空", nameof(password));
+        if (password.Length == 0) throw new ArgumentException("Password cannot be empty", nameof(password));
 
         var raw = BuildPasswordRequestData(password);
         var msg = new MCMessage
@@ -592,7 +592,7 @@ public class MCProtocol : DisposeBase
     public virtual void RemoteLock(String password)
     {
         if (password == null) throw new ArgumentNullException(nameof(password));
-        if (password.Length == 0) throw new ArgumentException("密码不能为空", nameof(password));
+        if (password.Length == 0) throw new ArgumentException("Password cannot be empty", nameof(password));
 
         var raw = BuildPasswordRequestData(password);
         var msg = new MCMessage
@@ -617,7 +617,7 @@ public class MCProtocol : DisposeBase
     private static Byte[] BuildPasswordRequestData(String password)
     {
         var pwdBytes = System.Text.Encoding.ASCII.GetBytes(password);
-        if (pwdBytes.Length > 255) throw new ArgumentOutOfRangeException(nameof(password), "密码过长，最多 255 字节");
+        if (pwdBytes.Length > 255) throw new ArgumentOutOfRangeException(nameof(password), "Password too long, max 255 bytes");
 
         using var ms = new MemoryStream();
         MCMessage.WriteUInt16LE(ms, (UInt16)pwdBytes.Length);
@@ -638,7 +638,7 @@ public class MCProtocol : DisposeBase
     {
         if (wordDevices == null) throw new ArgumentNullException(nameof(wordDevices));
         if (doubleWordDevices == null) throw new ArgumentNullException(nameof(doubleWordDevices));
-        if (wordDevices.Length + doubleWordDevices.Length == 0) throw new ArgumentException("至少需要一个监视地址");
+        if (wordDevices.Length + doubleWordDevices.Length == 0) throw new ArgumentException("At least one monitor address is required");
 
         var raw = BuildMonitorRegistRequestData(wordDevices, doubleWordDevices);
         var msg = new MCMessage
@@ -662,8 +662,8 @@ public class MCProtocol : DisposeBase
         (DeviceCode code, Int32 addr)[] wordDevices,
         (DeviceCode code, Int32 addr)[] doubleWordDevices)
     {
-        if (wordDevices.Length > 255) throw new ArgumentOutOfRangeException(nameof(wordDevices), "字设备数量不能超过 255");
-        if (doubleWordDevices.Length > 255) throw new ArgumentOutOfRangeException(nameof(doubleWordDevices), "双字设备数量不能超过 255");
+        if (wordDevices.Length > 255) throw new ArgumentOutOfRangeException(nameof(wordDevices), "Word device count cannot exceed 255");
+        if (doubleWordDevices.Length > 255) throw new ArgumentOutOfRangeException(nameof(doubleWordDevices), "Double word device count cannot exceed 255");
 
         using var ms = new MemoryStream();
         // 워드 디바이스 수 (1바이트)
@@ -915,7 +915,7 @@ public class MCProtocol : DisposeBase
         }
 
         if (_serialPort.BytesToRead == 0)
-            throw new TimeoutException("MC 串口响应超时");
+            throw new TimeoutException("MC serial response timeout");
 
         // 사용 가능한 바이트 읽기
         var available = _serialPort.BytesToRead;
@@ -944,7 +944,7 @@ public class MCProtocol : DisposeBase
         }
 
         if (_serialPort.BytesToRead == 0)
-            throw new TimeoutException("MC 1E 串口响应超时");
+            throw new TimeoutException("MC 1E serial response timeout");
 
         var available = _serialPort.BytesToRead;
         var result = new Byte[available];
@@ -1038,7 +1038,7 @@ public class MCProtocol : DisposeBase
         while (totalRead < count)
         {
             var read = stream.Read(buffer, offset + totalRead, count - totalRead);
-            if (read == 0) throw new IOException("TCP连接已关闭，无法读取MC协议响应");
+            if (read == 0) throw new IOException("TCP connection closed, cannot read MC protocol response");
             totalRead += read;
         }
     }

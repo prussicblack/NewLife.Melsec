@@ -15,7 +15,7 @@ public class UntestedComponentsTests
     #region SYS-3 SerialPortConfig 시리얼 포트 구성 영속화
 
     [Fact]
-    [DisplayName("SerialPortConfig 默认值验证")]
+    [DisplayName("SerialPortConfig default values")]
     public void SerialPortConfig_DefaultValues()
     {
         var config = new SerialPortConfig();
@@ -33,7 +33,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("SerialPortConfig 属性设置与读取")]
+    [DisplayName("SerialPortConfig property set and get")]
     public void SerialPortConfig_PropertySetGet()
     {
         var config = new SerialPortConfig
@@ -63,7 +63,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("SerialPortConfig WebEncoding 双向转换")]
+    [DisplayName("SerialPortConfig WebEncoding two-way conversion")]
     public void SerialPortConfig_WebEncoding_RoundTrip()
     {
         var config = new SerialPortConfig();
@@ -84,7 +84,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("SerialPortConfig Extend 默认空串")]
+    [DisplayName("SerialPortConfig Extend defaults to empty string")]
     public void SerialPortConfig_ExtendDefault()
     {
         var config = new SerialPortConfig();
@@ -99,7 +99,7 @@ public class UntestedComponentsTests
     #region SYS-4 MelsecNode 노드 모델
 
     [Fact]
-    [DisplayName("MelsecNode 属性设置与读取")]
+    [DisplayName("MelsecNode property set and get")]
     public void MelsecNode_PropertySetGet()
     {
         var node = new MelsecNode
@@ -116,7 +116,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MelsecNode IsConnected 始终为 true")]
+    [DisplayName("MelsecNode IsConnected always true")]
     public void MelsecNode_IsConnected_AlwaysTrue()
     {
         var node = new MelsecNode();
@@ -124,7 +124,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MelsecNode 地址支持串口名")]
+    [DisplayName("MelsecNode address supports serial port name")]
     public void MelsecNode_Address_SerialPort()
     {
         var node = new MelsecNode { Address = "COM1", Host = 2 };
@@ -133,7 +133,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MelsecNode 默认值")]
+    [DisplayName("MelsecNode default values")]
     public void MelsecNode_DefaultValues()
     {
         var node = new MelsecNode();
@@ -147,7 +147,7 @@ public class UntestedComponentsTests
     #region FXL-9 FxLinksParameter 드라이버 매개변수
 
     [Fact]
-    [DisplayName("FxLinksParameter 默认值验证")]
+    [DisplayName("FxLinksParameter default values")]
     public void FxLinksParameter_DefaultValues()
     {
         var param = new FxLinksParameter();
@@ -165,7 +165,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("FxLinksParameter 属性设置与读取")]
+    [DisplayName("FxLinksParameter property set and get")]
     public void FxLinksParameter_PropertySetGet()
     {
         var param = new FxLinksParameter
@@ -195,7 +195,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("FxLinksParameter GetKey 返回串口名")]
+    [DisplayName("FxLinksParameter GetKey returns serial port name")]
     public void FxLinksParameter_GetKey()
     {
         var param = new FxLinksParameter { PortName = "COM3" };
@@ -203,7 +203,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("FxLinksParameter FxLinks 串口参数符合规范")]
+    [DisplayName("FxLinksParameter FxLinks serial parameters conform to spec")]
     public void FxLinksParameter_FxLinkDefaults()
     {
         // FxLinks 규격 요건: 9600, 7, Even, One
@@ -219,7 +219,7 @@ public class UntestedComponentsTests
     #region MC-7 MCParameter 드라이버 매개변수
 
     [Fact]
-    [DisplayName("MCParameter 默认值验证")]
+    [DisplayName("MCParameter default values")]
     public void MCParameter_DefaultValues()
     {
         var param = new MCParameter();
@@ -235,7 +235,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MCParameter 属性设置与读取")]
+    [DisplayName("MCParameter property set and get")]
     public void MCParameter_PropertySetGet()
     {
         var param = new MCParameter
@@ -261,7 +261,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MCParameter GetKey 返回地址")]
+    [DisplayName("MCParameter GetKey returns address")]
     public void MCParameter_GetKey()
     {
         var param = new MCParameter { Address = "10.0.0.1:6000" };
@@ -269,7 +269,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MCParameter 支持三种帧类型")]
+    [DisplayName("MCParameter supports three frame types")]
     public void MCParameter_FrameTypeEnum()
     {
         // 열거형이 존재하고 할당 가능한지 검증
@@ -289,7 +289,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MCParameter Binary/Ascii 模式切换")]
+    [DisplayName("MCParameter Binary/Ascii mode switching")]
     public void MCParameter_DataFormat()
     {
         var param = new MCParameter();
@@ -304,7 +304,7 @@ public class UntestedComponentsTests
     #region MC-11 MCDriver 1E 모드 전환
 
     [Fact]
-    [DisplayName("MCFrameTypeHelper.Is1E 正确判断 1E 帧")]
+    [DisplayName("MCFrameTypeHelper.Is1E correctly detects 1E frames")]
     public void MCFrameTypeHelper_Is1E()
     {
         Assert.False(MCFrameType.Frame3E.Is1E());
@@ -313,7 +313,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MCFrameTypeHelper.Is4E 正确判断 4E 帧")]
+    [DisplayName("MCFrameTypeHelper.Is4E correctly detects 4E frames")]
     public void MCFrameTypeHelper_Is4E()
     {
         Assert.False(MCFrameType.Frame3E.Is4E());
@@ -322,7 +322,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MCFrameTypeHelper.Is3EOr4E 正确判断 3E/4E 帧")]
+    [DisplayName("MCFrameTypeHelper.Is3EOr4E correctly detects 3E/4E frames")]
     public void MCFrameTypeHelper_Is3EOr4E()
     {
         Assert.True(MCFrameType.Frame3E.Is3EOr4E());
@@ -331,7 +331,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MC1EMessage 读字请求 BuildReadWord 格式正确")]
+    [DisplayName("MC1EMessage ReadWord request BuildReadWord format correct")]
     public void MC1EMessage_BuildReadWord_Format()
     {
         // 1E 프레임 워드 읽기 요청: 서브헤드=0x00 + PLC 번호=0xFF + 타이머 + 시작 주소 + 코드 + 포인트 수
@@ -346,7 +346,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MC1EMessage 读位请求 BuildReadBit 副头正确")]
+    [DisplayName("MC1EMessage ReadBit request BuildReadBit sub-header correct")]
     public void MC1EMessage_BuildReadBit_SubHeader()
     {
         var msg = MC1EMessage.BuildReadBit(MC1EDeviceCode.M, 200, 8);
@@ -357,7 +357,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MC1EMessage 写字请求 BuildWriteWord 格式正确")]
+    [DisplayName("MC1EMessage WriteWord request BuildWriteWord format correct")]
     public void MC1EMessage_BuildWriteWord_Format()
     {
         var values = new UInt16[] { 0x1234, 0x5678 };
@@ -372,7 +372,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MC1EMessage 序列化/反序列化 Round-trip")]
+    [DisplayName("MC1EMessage serialization/deserialization round-trip")]
     public void MC1EMessage_RoundTrip()
     {
         var original = MC1EMessage.BuildReadWord(MC1EDeviceCode.D, 100, 4);
@@ -390,7 +390,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MC1EResponse 字读响应解析正确")]
+    [DisplayName("MC1EResponse word read response parsing correct")]
     public void MC1EResponse_ReadWordResponse()
     {
         // 1E 응답: 서브헤드(1) + 종료 코드(1) + 데이터(N)
@@ -407,7 +407,7 @@ public class UntestedComponentsTests
     }
 
     [Fact]
-    [DisplayName("MC1EResponse 错误响应解析")]
+    [DisplayName("MC1EResponse error response parsing")]
     public void MC1EResponse_ErrorResponse()
     {
         // 종료 코드가 0이 아님

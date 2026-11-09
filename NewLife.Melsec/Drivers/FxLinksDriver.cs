@@ -15,7 +15,7 @@ namespace NewLife.Melsec.Drivers;
 /// 미쓰비시 PLC 드라이버
 /// </summary>
 [Driver("MelsecFxLinks")]
-[DisplayName("三菱FxLinks")]
+[DisplayName("Mitsubishi FxLinks")]
 public class FxLinksDriver : DriverBase
 {
     /// <summary>링크</summary>
@@ -44,7 +44,7 @@ public class FxLinksDriver : DriverBase
     /// <returns></returns>
     public virtual UInt16 GetAddress(IPoint point)
     {
-        if (point == null) throw new ArgumentException("点位信息不能为空！");
+        if (point == null) throw new ArgumentException("Point info cannot be empty!");
 
         // 콜론 이후의 비트 필드 제거
         var addr = point.Address;
@@ -66,7 +66,7 @@ public class FxLinksDriver : DriverBase
         using var span = Tracer?.NewSpan("fxlinks:parameter", parameter.ToJson());
 
         var p = parameter as FxLinksParameter;
-        if (p == null) throw new ArgumentException($"参数不合法：{parameter.ToJson()}");
+        if (p == null) throw new ArgumentException($"Invalid parameter: {parameter.ToJson()}");
 
         if (p.Baudrate <= 0) p.Baudrate = 9600;
 
@@ -348,7 +348,7 @@ public class FxLinksDriver : DriverBase
                 else
                     vs = ConvertToWord(value, point, n.Device?.Specification);
 
-                if (vs == null) throw new NotSupportedException($"点位[{point.Name}]不支持数据[{value}]");
+                if (vs == null) throw new NotSupportedException($"Point [{point.Name}] does not support data [{value}]");
             }
 
             // 잠금으로 충돌 방지

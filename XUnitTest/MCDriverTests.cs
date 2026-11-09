@@ -20,7 +20,7 @@ public class MCDriverTests
     #region Open / Close
 
     [Fact]
-    [DisplayName("Open 返回 MelsecNode 且 Link 被初始化")]
+    [DisplayName("Open returns MelsecNode and Link is initialized")]
     public void Open_ReturnsMelsecNode()
     {
         var driver = new MCDriver();
@@ -35,7 +35,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Open 多次打开同地址共享同一 Link")]
+    [DisplayName("Open multiple times on the same address shares the same Link")]
     public void Open_MultipleNodes_ShareSameLink()
     {
         var driver = new MCDriver();
@@ -56,7 +56,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Close 引用计数减至0时释放 Link")]
+    [DisplayName("Close releases Link when ref count drops to 0")]
     public void Close_RefCountZero_DisposesLink()
     {
         var driver = new MCDriver();
@@ -76,7 +76,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("CreateParameter 空字符串返回默认值")]
+    [DisplayName("CreateParameter empty string returns defaults")]
     public void CreateParameter_Null_ReturnsDefault()
     {
         var driver = new MCDriver();
@@ -92,7 +92,7 @@ public class MCDriverTests
     #region Read
 
     [Fact]
-    [DisplayName("Read 字软元件 D100-D104 返回正确结果")]
+    [DisplayName("Read word devices D100-D104 returns correct result")]
     public void Read_WordRegisters_ReturnsReadResult()
     {
         var driver = new MCDriver();
@@ -119,7 +119,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Read 位软元件 M200-M207 返回正确结果")]
+    [DisplayName("Read bit devices M200-M207 returns correct result")]
     public void Read_BitDevices_ReturnsReadResult()
     {
         var driver = new MCDriver();
@@ -146,7 +146,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Read 空点位集合 返回空结果")]
+    [DisplayName("Read empty point collection returns empty result")]
     public void Read_EmptyPoints_ReturnsEmpty()
     {
         var driver = new MCDriver();
@@ -166,7 +166,7 @@ public class MCDriverTests
     #region Write
 
     [Fact]
-    [DisplayName("Write 字软元件 D100 调用 WriteWords 并返回成功")]
+    [DisplayName("Write word device D100 calls WriteWords and succeeds")]
     public void Write_WordRegister_CallsWriteWords()
     {
         var driver = new MCDriver();
@@ -186,7 +186,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Write 位软元件 M0 ON 调用 WriteBits 并返回成功")]
+    [DisplayName("Write bit device M0 ON calls WriteBits and succeeds")]
     public void Write_BitDevice_CallsWriteBits()
     {
         var driver = new MCDriver();
@@ -210,7 +210,7 @@ public class MCDriverTests
     #region BuildSegments
 
     [Fact]
-    [DisplayName("BuildSegments 相邻字地址合并为一个分段")]
+    [DisplayName("BuildSegments merges adjacent word addresses into one segment")]
     public void BuildSegments_AdjacentWordAddresses_MergeToOne()
     {
         var driver = new MCDriver();
@@ -227,7 +227,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("BuildSegments 不同软元件代码不合并")]
+    [DisplayName("BuildSegments does not merge different device codes")]
     public void BuildSegments_DifferentDeviceCodes_NotMerged()
     {
         var driver = new MCDriver();
@@ -245,7 +245,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("BuildSegments 按 BatchSize 拆分多批")]
+    [DisplayName("BuildSegments splits into multiple batches by BatchSize")]
     public void BuildSegments_BatchSize_SplitsSegments()
     {
         var driver = new MCDriver();
@@ -265,7 +265,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("BuildSegments 地址不连续不合并")]
+    [DisplayName("BuildSegments does not merge non-contiguous addresses")]
     public void BuildSegments_NonAdjacentAddresses_NotMerged()
     {
         var driver = new MCDriver();
@@ -283,7 +283,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("BuildSegments BatchStep=4 跨越间隔小于4时合并")]
+    [DisplayName("BuildSegments BatchStep=4 merges when gap is less than 4")]
     public void BuildSegments_BatchStep4_MergesWithinStep()
     {
         var driver = new MCDriver();
@@ -307,7 +307,7 @@ public class MCDriverTests
     #region Dispatch
 
     [Fact]
-    [DisplayName("Dispatch 字分段数据正确分配到各点位")]
+    [DisplayName("Dispatch word segment data correctly to each point")]
     public void Dispatch_WordSegment_CorrectlyMappedToPoints()
     {
         var driver = new MCDriver();
@@ -335,7 +335,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Dispatch 位分段数据正确分配到各点位")]
+    [DisplayName("Dispatch bit segment data correctly to each point")]
     public void Dispatch_BitSegment_CorrectlyMappedToPoints()
     {
         var driver = new MCDriver();
@@ -363,7 +363,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Write Boolean true 位软元件 M0 调用 WriteBits 含正确值")]
+    [DisplayName("Write Boolean true to bit device M0 calls WriteBits with correct value")]
     public void Write_BitDevice_Boolean_True_CallsWriteBits()
     {
         var driver = new MCDriver();
@@ -382,7 +382,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("Read 某分段抛出异常时其他分段数据仍正常返回")]
+    [DisplayName("Read: other segments still return when one segment throws")]
     public void Read_SegmentThrows_OtherSegmentsStillReturn()
     {
         var driver = new MCDriver();
@@ -392,7 +392,7 @@ public class MCDriverTests
         var mock = new Mock<MCProtocol> { CallBase = false };
         // D 세그먼트에서 예외 발생
         mock.Setup(e => e.ReadWords(DeviceCode.D, It.IsAny<Int32>(), It.IsAny<Int32>()))
-            .Throws(new InvalidOperationException("D段模拟失败"));
+            .Throws(new InvalidOperationException("D segment simulation failed"));
         // M 세그먼트는 정상
         mock.Setup(e => e.ReadBits(DeviceCode.M, 0, It.IsAny<Int32>()))
             .Returns([true, false]);
@@ -419,7 +419,7 @@ public class MCDriverTests
     #region 태그 이름 접근 (Tag)
 
     [Fact]
-    [DisplayName("SetTag 存储标签映射")]
+    [DisplayName("SetTag stores tag mapping")]
     public void SetTag_StoresMapping()
     {
         var driver = new MCDriver();
@@ -432,7 +432,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("SetTags 批量设置标签映射")]
+    [DisplayName("SetTags bulk tag mapping")]
     public void SetTags_BulkMapping()
     {
         var driver = new MCDriver();
@@ -449,7 +449,7 @@ public class MCDriverTests
     }
 
     [Fact]
-    [DisplayName("ReadTagAsync 未定义标签抛出异常")]
+    [DisplayName("ReadTagAsync undefined tag throws")]
     public async Task ReadTagAsync_UndefinedTag_Throws()
     {
         var driver = new MCDriver();
@@ -458,11 +458,11 @@ public class MCDriverTests
 
         var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
             driver.ReadTagAsync(node, "不存在"));
-        Assert.Contains("未在 TagMap 中定义", ex.Message);
+        Assert.Contains("is not defined in TagMap", ex.Message);
     }
 
     [Fact]
-    [DisplayName("ReadTagAsync 已定义标签发起读取")]
+    [DisplayName("ReadTagAsync defined tag initiates read")]
     public async Task ReadTagAsync_DefinedTag_CallsRead()
     {
         var driver = new MCDriver();

@@ -33,19 +33,19 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AssemblyDescription" xml:space="preserve">
-    <value>三菱PLC通信库 - 基于 NewLife.IoT 标准接口规范，覆盖 FxLinks 串口协议、MC 以太网协议和 SLMP 协议的纯托管实现</value>
-    <comment>程序集描述 - 中文</comment>
+    <value>Mitsubishi PLC communication library - pure managed implementation based on the NewLife.IoT standard interface, covering FxLinks serial, MC Ethernet and SLMP protocols</value>
+    <comment>어셈블리 설명 - 영어</comment>
   </data>
   <data name="ProtocolFxLinks" xml:space="preserve">
-    <value>FxLinks 计算机链路协议（RS-485 串口）</value>
-    <comment>FxLinks 协议名称</comment>
+    <value>FxLinks Computer Link protocol (RS-485 serial)</value>
+    <comment>FxLinks 프로토콜 이름</comment>
   </data>
   <data name="ProtocolMC" xml:space="preserve">
-    <value>MC 协议（3E/1E/4E 帧，以太网）</value>
-    <comment>MC 协议名称</comment>
+    <value>MC protocol (3E/1E/4E frames, Ethernet)</value>
+    <comment>MC 프로토콜 이름</comment>
   </data>
   <data name="ProtocolSLMP" xml:space="preserve">
-    <value>SLMP 协议（3C 帧）</value>
-    <comment>SLMP 协议名称</comment>
+    <value>SLMP protocol (3C frame)</value>
+    <comment>SLMP 프로토콜 이름</comment>
   </data>
 </root>
