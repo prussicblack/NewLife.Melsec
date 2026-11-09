@@ -1,4 +1,4 @@
-# NewLife.Melsec - 三菱PLC / Mitsubishi PLC
+# NewLife.Melsec - Mitsubishi PLC
 
 > **🌐 选择语言 / Language**
 >

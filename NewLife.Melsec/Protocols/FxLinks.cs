@@ -9,7 +9,7 @@ using NewLife.Log;
 
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>三菱 PLC 컴퓨터 링크 프로토콜</summary>
+/// <summary>미쓰비시 PLC 컴퓨터 링크 프로토콜</summary>
 public class FxLinks : DisposeBase
 {
     #region 속성

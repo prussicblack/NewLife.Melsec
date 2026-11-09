@@ -5,7 +5,7 @@ using NewLife.Serialization;
 
 namespace NewLife.Melsec.Protocols;
 
-/// <summary>三菱 FxLinks 메시지</summary>
+/// <summary>미쓰비시 FxLinks 메시지</summary>
 /// <remarks>
 /// 기능 코드:
 /// ENQ 05
